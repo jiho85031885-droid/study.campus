@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="canonical" href="https://studycampus.app/" />
+    <meta property="og:url" content="https://studycampus.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="studycampus - 온라인 학습 플랫폼" />
+    <meta property="og:description" content="구조분석으로 영어가 해방되는 나만의 온라인 학원 대시보드" />
+    <meta property="og:site_name" content="studycampus" />
+
+    <title>studycampus - 온라인 학습 플랫폼</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 폰트 설정 */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
+        
+        body { font-family: 'Pretendard', sans-serif; background-color: #f4f6f8; color: #1e293b; -webkit-tap-highlight-color: transparent; }
+        .font-logo { font-family: 'Caveat', cursive; letter-spacing: 0.5px; }
+        
+        /* 애니메이션 */
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 스크롤바 숨기기 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 커스텀 원형 체크박스 (학생용 미션) */
+        .circle-check { appearance: none; width: 1.5rem; height: 1.5rem; border: 2px solid #cbd5e1; border-radius: 50%; cursor: pointer; transition: all 0.2s; position: relative; }
+        .circle-check:checked { background-color: #10b981; border-color: #10b981; }
+        .circle-check:checked::after { content: ''; position: absolute; left: 8px; top: 4px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen relative w-full">
+
+    <div id="auth-view" class="fixed inset-0 bg-[#f4f6f8] z-50 flex items-center justify-center fade-in px-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8">
+            
+            <div class="text-center mb-10">
+                <h1 class="font-logo text-5xl text-[#1a365d] mb-1">studycampus</h1>
+                <p id="auth-subtitle" class="text-slate-400 text-sm font-medium">계정에 로그인하세요</p>
+            </div>
+
+            <form id="login-form" onsubmit="app.login(event)" class="space-y-4">
+                <div>
+                    <input type="text" id="login-id" placeholder="아이디 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 transition">
+                </div>
+                <div>
+                    <input type="password" id="login-pw" placeholder="비밀번호 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 transition">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition shadow-md">로그인</button>
+                
+                <div class="flex justify-center gap-4 text-xs text-slate-400 mt-4 font-medium">
+                    <button type="button" class="hover:text-slate-600">아이디 찾기</button><span>|</span><button type="button" class="hover:text-slate-600">비밀번호 재설정</button>
+                </div>
+
+                <div class="relative flex py-6 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div><span class="shrink-0 mx-4 text-slate-400 text-xs">또는</span><div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <button type="button" onclick="authUI.toggleMode('signup')" class="w-full bg-white border border-slate-300 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-50 transition">회원가입</button>
+            </form>
+
+            <form id="signup-form" onsubmit="app.signup(event)" class="space-y-4 hidden h-[450px] overflow-y-auto no-scrollbar pb-10 px-1">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">이름</label>
+                    <input type="text" id="reg-name" placeholder="실명 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">아이디</label>
+                    <input type="text" id="reg-id" placeholder="로그인에 사용할 아이디" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">전화번호</label>
+                    <input type="text" id="reg-phone" placeholder="010-0000-0000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">비밀번호</label>
+                        <input type="password" id="reg-pw" placeholder="4자 이상" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">비밀번호 확인</label>
+                        <input type="password" id="reg-pw-check" placeholder="다시 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">학교</label>
+                        <input type="text" id="reg-school" placeholder="학교명" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">학년</label>
+                        <select id="reg-grade" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                            <option value="중1">중1</option><option value="중2">중2</option><option value="중3">중3</option>
+                            <option value="고1">고1</option><option value="고2" selected>고2</option><option value="고3">고3</option><option value="N수">N수</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">학부모 전화번호</label>
+                    <input type="text" id="reg-parent" placeholder="010-0000-0000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">생년월일</label>
+                    <input type="date" id="reg-birth" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-slate-500">
+                </div>
+                
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition mt-6 shadow-md text-lg">가입 완료</button>
+                <div class="text-center mt-4 text-xs">
+                    <button type="button" onclick="authUI.toggleMode('login')" class="text-slate-500 font-bold hover:underline">← 로그인으로 돌아가기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div id="student-view" class="hidden flex-col h-screen w-full bg-[#f4f6f8]">
+        
+        <header class="bg-white h-16 border-b border-slate-200 flex justify-center items-center px-4 shrink-0 sticky top-0 z-40 w-full">
+            <div class="w-full max-w-6xl flex justify-between items-center">
+                <h1 class="font-logo text-3xl text-[#1a365d] font-bold mt-1">studycampus</h1>
+                <div class="flex items-center gap-5">
+                    <button class="relative text-slate-400 hover:text-slate-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        <span class="absolute top-0 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    </button>
+                    <button onclick="app.logout()" class="text-sm font-bold text-slate-500 hover:text-slate-700">로그아웃</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto no-scrollbar pb-24 w-full">
+            <div class="max-w-4xl mx-auto w-full p-4 md:p-8">
+                
+                <div id="tab-home" class="tab-content fade-in space-y-6">
+                    <div class="bg-[#4176ff] rounded-[20px] p-6 md:p-8 text-white relative overflow-hidden shadow-sm">
+                        <div class="absolute right-0 top-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
+                        <div class="flex justify-between items-start mb-8 relative z-10">
+                            <div>
+                                <p class="text-blue-100 text-xs font-bold mb-2 opacity-90 tracking-widest uppercase" id="st-week">WEEK 6</p>
+                                <h2 class="text-3xl font-black leading-tight"><span id="st-greeting-name">학생</span>님,<br>오늘도 파이팅!</h2>
+                                <p class="text-blue-100 text-sm mt-3" id="st-greeting-info">고등학교 • 선생님</p>
+                            </div>
+                            <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-3xl backdrop-blur-sm border border-white/30 shadow-inner">👩‍🎓</div>
+                        </div>
+                        <div class="flex gap-4 relative z-10">
+                            <div class="flex-1 bg-white/10 rounded-2xl p-4 backdrop-blur-md border border-white/20 flex items-center gap-4">
+                                <span class="text-3xl">🔥</span>
+                                <div><div class="font-black text-xl leading-none">0일</div><div class="text-xs text-blue-100 mt-1">연속 출석</div></div>
+                            </div>
+                            <div class="flex-1 bg-white/10 rounded-2xl p-4 backdrop-blur-md border border-white/20 flex items-center gap-4">
+                                <span class="text-3xl">💎</span>
+                                <div><div class="font-black text-xl leading-none" id="st-xp">0 XP</div><div class="text-xs text-blue-100 mt-1">Lv.1 초심자</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 border border-red-100 rounded-2xl px-5 py-4 flex justify-between items-center shadow-sm">
+                        <div class="flex items-center gap-3 text-sm font-bold text-red-500"><span>🔑</span> <span id="st-dday">수강권 만료 D-2</span></div>
+                        <button class="bg-red-500 hover:bg-red-600 transition text-white text-xs font-bold px-4 py-2 rounded-full">연장하기</button>
+                    </div>
+
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
+                            <h3 class="font-black text-slate-900 text-lg">수업 안내 (다시보기)</h3>
+                            <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">완료시 XP</span>
+                        </div>
+                        <ul id="st-mission-list" class="divide-y divide-slate-50 bg-white">
+                            </ul>
+                        <div class="p-6 bg-white border-t border-slate-50">
+                            <button onclick="studentApp.completeAllMissions()" class="w-full bg-[#10b981] hover:bg-[#059669] transition text-white font-bold py-4 rounded-xl shadow-md text-base">모두 완료! 수업 시작하기</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-homework" class="tab-content hidden fade-in space-y-6">
+                    <div class="bg-[#4176ff] rounded-3xl p-8 text-center text-white shadow-md">
+                        <h2 class="text-3xl font-black"><span id="st-hw-week">WEEK 6</span> <span class="bg-white/20 text-xs px-3 py-1 rounded-full ml-2 align-middle">이번 주</span></h2>
+                        <p class="text-sm text-blue-100 mt-3" id="st-hw-title">기출제로원</p>
+                    </div>
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden" id="st-hw-container">
+                        </div>
+                </div>
+
+                <div id="tab-test" class="tab-content hidden fade-in space-y-6">
+                    <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 text-center">
+                        <span class="text-4xl">📝</span>
+                        <h3 class="text-lg font-bold text-slate-800 mt-4">테스트 기능 준비 중</h3>
+                        <p class="text-sm text-slate-400 mt-2">더 나은 기능으로 곧 찾아올게요!</p>
+                    </div>
+                </div>
+
+                <div id="tab-lecture" class="tab-content hidden fade-in space-y-6">
+                    <div class="bg-[#4176ff] rounded-3xl p-8 text-white shadow-md">
+                        <p class="text-xs text-blue-200 mb-2 font-bold" id="st-lec-date">2026년 진행중</p>
+                        <h2 class="text-3xl font-black" id="st-lec-title">기출제로원</h2>
+                    </div>
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">강의 목록</h3></div>
+                        <ul id="st-lec-list" class="divide-y divide-slate-100">
+                            </ul>
+                    </div>
+                </div>
+
+                <div id="tab-material" class="tab-content hidden fade-in space-y-6">
+                    <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 text-center">
+                        <span class="text-4xl">🗂️</span>
+                        <h3 class="text-lg font-bold text-slate-800 mt-4">자료실 준비 중</h3>
+                        <p class="text-sm text-slate-400 mt-2">더 나은 기능으로 곧 찾아올게요!</p>
+                    </div>
+                </div>
+
+                <div id="tab-my" class="tab-content hidden fade-in space-y-6">
+                    <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 text-center">
+                        <span class="text-4xl">👤</span>
+                        <h3 class="text-lg font-bold text-slate-800 mt-4">마이페이지 준비 중</h3>
+                        <p class="text-sm text-slate-400 mt-2">더 나은 기능으로 곧 찾아올게요!</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <nav class="bg-white border-t border-slate-200 w-full fixed bottom-0 z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.03)] h-[70px] pb-safe flex justify-center">
+            <div class="w-full max-w-2xl flex justify-between items-center h-full px-2">
+                <button onclick="studentApp.switchTab('home')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1.5 text-[#4176ff] transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span class="text-[11px] font-bold">홈</span></button>
+                <button onclick="studentApp.switchTab('homework')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-[11px] font-bold">숙제</span></button>
+                <button onclick="studentApp.switchTab('test')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg><span class="text-[11px] font-bold">테스트</span></button>
+                <button onclick="studentApp.switchTab('lecture')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg><span class="text-[11px] font-bold">강의</span></button>
+                <button onclick="studentApp.switchTab('material')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg><span class="text-[11px] font-bold">자료실</span></button>
+                <button onclick="studentApp.switchTab('my')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span class="text-[11px] font-bold">MY</span></button>
+            </div>
+        </nav>
+    </div>
+    
+    <div id="admin-view" class="hidden flex-col h-screen w-full bg-[#f4f6f8] relative">
+        <header class="bg-[#1a365d] h-16 flex justify-center items-center px-4 shrink-0 sticky top-0 z-40 w-full shadow-md">
+            <div class="w-full max-w-6xl flex justify-between items-center text-white">
+                <div class="flex items-center gap-3"><h1 class="font-logo text-2xl font-bold mt-1">studycampus</h1><span class="bg-rose-500 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider">ADMIN</span></div>
+                <button onclick="app.logout()" class="text-sm font-bold text-white/80 hover:text-white transition">로그아웃</button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto no-scrollbar p-4 md:p-8 w-full">
+            <div class="max-w-5xl mx-auto space-y-6">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900">선생님 관리 시스템</h2>
+                    <p class="text-slate-500 mt-1 text-sm">콘텐츠를 편집하면 학생 화면에 실시간으로 반영됩니다.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[400px]">
+                        <div class="p-5 border-b border-slate-100 bg-slate-50"><h3 class="font-bold text-[#1a365d] text-base">👥 등록 학생 관리</h3></div>
+                        <div class="flex-1 overflow-x-auto p-0">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-white sticky top-0 border-b border-slate-100 text-slate-500">
+                                    <tr><th class="py-4 px-5">이름</th><th class="py-4 px-5">아이디</th><th class="py-4 px-5 text-center">관리</th></tr>
+                                </thead>
+                                <tbody id="ad-student-list" class="divide-y divide-slate-50 text-slate-700">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 h-fit space-y-5">
+                        <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-3">⚙️ 기본 정보 설정 (배너)</h3>
+                        <form onsubmit="adminApp.updateConfig(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">현재 주차 (Week)</label>
+                                <input type="text" id="ad-conf-week" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">코스 이름 (타이틀)</label>
+                                <input type="text" id="ad-conf-title" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">수강권 마감 D-Day</label>
+                                <input type="text" id="ad-conf-dday" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <button type="submit" class="w-full bg-[#1a365d] text-white font-bold py-3.5 rounded-xl hover:bg-blue-900 transition">기본 정보 저장</button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 h-fit space-y-5">
+                        <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-3">📼 강의 영상 추가</h3>
+                        <form onsubmit="adminApp.addLecture(event)" class="space-y-4">
+                            <div><label class="block text-xs font-bold text-slate-500 mb-1">강의 유형</label>
+                                <select id="ad-lec-type" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 bg-white outline-none">
+                                    <option value="🔴">🔴 라이브 수업</option><option value="📼">📼 녹화본(VOD)</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-xs font-bold text-slate-500 mb-1">강의 제목</label><input type="text" id="ad-lec-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                            <div><label class="block text-xs font-bold text-slate-500 mb-1">부가 설명 (시간/안내)</label><input type="text" id="ad-lec-desc" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition">강의 배포하기</button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 h-fit space-y-5">
+                        <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-3">📢 숙제 할당</h3>
+                        <form onsubmit="adminApp.addHomework(event)" class="space-y-4">
+                            <div class="flex gap-2">
+                                <div class="w-1/3"><label class="block text-xs font-bold text-slate-500 mb-1">요일</label>
+                                    <select id="ad-hw-day" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-blue-500 bg-white outline-none"><option value="월">월</option><option value="화">화</option><option value="수">수</option><option value="목">목</option><option value="금" selected>금</option><option value="토">토</option><option value="일">일</option></select>
+                                </div>
+                                <div class="w-2/3"><label class="block text-xs font-bold text-slate-500 mb-1">날짜</label><input type="text" id="ad-hw-date" placeholder="ex) 06/12" required class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                            </div>
+                            <div><label class="block text-xs font-bold text-slate-500 mb-1">숙제 제목</label><input type="text" id="ad-hw-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition">숙제 배포하기</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 1. LocalStorage DB 시스템 (버전4로 업그레이드 하여 모든 과거데이터 완벽 초기화)
+        const DB_KEY = 'sc_db_v4'; 
+        
+        const DB = {
+            init() {
+                if (!localStorage.getItem(DB_KEY)) {
+                    // 요구사항: 이미지에 따른 관리자 권한 부여 및 비밀번호 설정
+                    const initialData = {
+                        users: [
+                            { 
+                                id: 'ijiho853', phone: '01048670953', pw: '0909791hrd*', 
+                                name: '이지호', role: 'admin', school: '대화고등학교', grade: '고2', birth: '2009-08-03' 
+                            }
+                        ],
+                        config: { week: 'WEEK 6', title: '기출제로원', dday: 'D-2' },
+                        missions: {},
+                        homeworks: [
+                            { id: 1, day: '목', date: '06/11', title: '', status: 'none' },
+                            { id: 2, day: '금', date: '06/12', title: '수능특강 3강 단어 암기 인증', status: 'pending' },
+                            { id: 3, day: '토', date: '06/13', title: '', status: 'none' }
+                        ],
+                        lectures: [
+                            { id: 1, type: '🔴', title: '3주차 라이브 수업', desc: '매주 목요일 저녁 8시' },
+                            { id: 2, type: '📼', title: '1강. 수업 OT + 18-19번 상세분석', desc: '92분 녹화본 시청하기' }
+                        ],
+                        subs: []
+                    };
+                    localStorage.setItem(DB_KEY, JSON.stringify(initialData));
+                }
+            },
+            getData() { return JSON.parse(localStorage.getItem(DB_KEY)); },
+            setData(dataObj) { localStorage.setItem(DB_KEY, JSON.stringify(dataObj)); },
+            getAuth() { return JSON.parse(sessionStorage.getItem('sc_auth')); },
+            setAuth(user) { sessionStorage.setItem('sc_auth', JSON.stringify(user)); },
+            clearAuth() { sessionStorage.removeItem('sc_auth'); }
+        };
+
+        // 2. 인증 UI
+        const authUI = {
+            toggleMode(mode) {
+                const loginForm = document.getElementById('login-form');
+                const signupForm = document.getElementById('signup-form');
+                
+                if (mode === 'signup') {
+                    loginForm.style.display = 'none';
+                    signupForm.style.display = 'block';
+                    document.getElementById('auth-subtitle').textContent = "새 계정을 만들어 보세요";
+                } else {
+                    signupForm.style.display = 'none';
+                    loginForm.style.display = 'block';
+                    document.getElementById('auth-subtitle').textContent = "계정에 로그인하세요";
+                }
+            }
+        };
+
+        // 3. 앱 컨트롤러
+        const app = {
+            init() {
+                DB.init();
+                this.route();
+            },
+            signup(e) {
+                e.preventDefault();
+                const id = document.getElementById('reg-id').value;
+                const pw = document.getElementById('reg-pw').value;
+                const pwCheck = document.getElementById('reg-pw-check').value;
+                
+                if(pw !== pwCheck) return alert("비밀번호가 일치하지 않습니다.");
+
+                let dbData = DB.getData();
+                if(dbData.users.find(u => u.id === id)) return alert("이미 등록된 아이디입니다.");
+
+                // 신규 학생 깨끗하게 초기화
+                const newUser = {
+                    id: id, pw: pw, role: 'student', xp: 0,
+                    name: document.getElementById('reg-name').value,
+                    phone: document.getElementById('reg-phone').value,
+                    school: document.getElementById('reg-school').value,
+                    grade: document.getElementById('reg-grade').value
+                };
+                
+                dbData.missions[id] = [false, false, false];
+                dbData.users.push(newUser);
+                DB.setData(dbData);
+                
+                alert("회원가입이 완료되었습니다!");
+                DB.setAuth(newUser);
+                document.getElementById('signup-form').reset();
+                this.route();
+            },
+            login(e) {
+                e.preventDefault();
+                const id = document.getElementById('login-id').value;
+                const pw = document.getElementById('login-pw').value;
+                const dbData = DB.getData();
+                
+                const user = dbData.users.find(u => (u.id === id || u.phone === id) && u.pw === pw);
+                if(user) {
+                    DB.setAuth(user);
+                    document.getElementById('login-form').reset();
+                    this.route();
+                } else {
+                    alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+                }
+            },
+            logout() {
+                DB.clearAuth();
+                this.route();
+                authUI.toggleMode('login'); 
+            },
+            route() {
+                const user = DB.getAuth();
+                const authView = document.getElementById('auth-view');
+                const studentView = document.getElementById('student-view');
+                const adminView = document.getElementById('admin-view');
+
+                authView.classList.add('hidden');
+                studentView.classList.add('hidden');
+                adminView.classList.add('hidden');
+
+                if (!user) {
+                    authView.classList.remove('hidden');
+                } else if (user.role === 'admin') {
+                    adminView.classList.remove('hidden');
+                    adminView.classList.add('flex');
+                    adminApp.render();
+                } else {
+                    studentView.classList.remove('hidden');
+                    studentView.classList.add('flex');
+                    studentApp.initData(user);
+                }
+            }
+        };
+
+        // 4. 학생 대시보드 로직
+        const studentApp = {
+            currentUser: null,
+            initData(user) {
+                this.currentUser = user;
+                const dbData = DB.getData();
+                
+                document.getElementById('st-greeting-name').textContent = user.name;
+                document.getElementById('st-greeting-info').textContent = `${user.school} ${user.grade} • 선생님T`;
+                document.getElementById('st-week').textContent = dbData.config.week;
+                document.getElementById('st-dday').textContent = `수강권 만료 ${dbData.config.dday}`;
+                document.getElementById('st-hw-week').textContent = dbData.config.week;
+                document.getElementById('st-hw-title').textContent = dbData.config.title;
+                document.getElementById('st-lec-title').textContent = dbData.config.title;
+
+                this.updateXP(0); 
+                this.renderMissions();
+                this.renderHomeworks();
+                this.renderLectures();
+                this.switchTab('home');
+            },
+            updateXP(amount) {
+                let dbData = DB.getData();
+                let myIdx = dbData.users.findIndex(u => u.id === this.currentUser.id);
+                if(myIdx > -1) {
+                    dbData.users[myIdx].xp += amount;
+                    this.currentUser.xp = dbData.users[myIdx].xp;
+                    DB.setData(dbData);
+                }
+                document.getElementById('st-xp').textContent = `${this.currentUser.xp} XP`;
+            },
+            toggleMission(idx) {
+                let dbData = DB.getData();
+                if(!dbData.missions[this.currentUser.id]) dbData.missions[this.currentUser.id] = [false, false, false];
+                
+                let myMissions = dbData.missions[this.currentUser.id];
+                myMissions[idx] = !myMissions[idx];
+                dbData.missions[this.currentUser.id] = myMissions;
+                DB.setData(dbData);
+                
+                if(myMissions[idx]) this.updateXP(10);
+                else this.updateXP(-10);
+                this.renderMissions();
+            },
+            completeAllMissions() {
+                let dbData = DB.getData();
+                if(!dbData.missions[this.currentUser.id]) dbData.missions[this.currentUser.id] = [false, false, false];
+                
+                let myMissions = dbData.missions[this.currentUser.id];
+                let changed = false;
+                for(let i=0; i<myMissions.length; i++) {
+                    if(!myMissions[i]) { myMissions[i] = true; this.updateXP(10); changed = true; }
+                }
+                if(changed) {
+                    dbData.missions[this.currentUser.id] = myMissions;
+                    DB.setData(dbData);
+                    this.renderMissions();
+                    alert("모든 미션을 완료했습니다! (+XP)");
+                } else {
+                    alert("이미 모두 완료하셨습니다.");
+                }
+            },
+            renderMissions() {
+                let dbData = DB.getData();
+                let myMissions = dbData.missions[this.currentUser.id] || [false, false, false];
+                const texts = ["줌 입장 링크 확인 (매주 목 저녁 8시)", "주교재 다운로드 (자료실)", "숙제 제출 방법 확인"];
+                const list = document.getElementById('st-mission-list');
+                list.innerHTML = '';
+                
+                texts.forEach((text, i) => {
+                    const isDone = myMissions[i];
+                    list.innerHTML += `
+                        <li class="flex items-center gap-4 p-5 hover:bg-slate-50 transition cursor-pointer" onclick="studentApp.toggleMission(${i})">
+                            <input type="checkbox" ${isDone ? 'checked' : ''} class="circle-check shrink-0 pointer-events-none">
+                            <span class="text-sm font-bold ${isDone ? 'text-slate-400 line-through' : 'text-slate-700'}">${text}</span>
+                        </li>
+                    `;
+                });
+            },
+            submitHW(hwId) {
+                if(confirm("이 과제를 제출하시겠습니까? (완료 처리)")) {
+                    let dbData = DB.getData();
+                    dbData.subs.push({ hwId: hwId, userId: this.currentUser.id, date: new Date().toLocaleDateString() });
+                    DB.setData(dbData);
+                    this.updateXP(50);
+                    alert("숙제 제출 완료! (+50XP)");
+                    this.renderHomeworks();
+                }
+            },
+            renderHomeworks() {
+                const dbData = DB.getData();
+                const container = document.getElementById('st-hw-container');
+                container.innerHTML = '';
+                
+                if(dbData.homeworks.length === 0) {
+                    container.innerHTML = `<div class="p-10 text-center text-slate-400 font-bold bg-white">😌 아직 등록된 숙제가 없습니다.</div>`; return;
+                }
+
+                dbData.homeworks.forEach(hw => {
+                    const isSubmitted = dbData.subs.find(s => s.hwId === hw.id && s.userId === this.currentUser.id);
+                    let content = '';
+                    
+                    if(isSubmitted) {
+                        content = `<div class="p-6 bg-white border-t border-blue-50 flex justify-between items-center"><span class="text-sm font-black text-slate-800">${hw.title}</span><span class="bg-emerald-100 text-emerald-600 px-3 py-1.5 rounded-lg text-xs font-bold">확인 대기중</span></div>`;
+                    } else if (hw.status === 'none') {
+                        content = `<div class="p-8 text-center bg-white border-t border-slate-50"><div class="text-3xl mb-2">😌</div><p class="text-xs text-slate-400 font-bold">숙제 없는 날이에요</p></div>`;
+                    } else {
+                        content = `<div class="p-6 bg-white border-t border-blue-50"><p class="text-sm font-black text-slate-800 mb-4">${hw.title}</p><button onclick="studentApp.submitHW(${hw.id})" class="w-full bg-[#4176ff] text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition shadow-sm text-sm">과제 제출하기</button></div>`;
+                    }
+
+                    container.innerHTML += `
+                        <div class="border-b border-slate-100 bg-blue-50/10">
+                            <div class="flex items-center justify-between p-5">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-base ${hw.status !== 'none' ? 'bg-[#4176ff] text-white shadow-md' : 'bg-slate-100 text-slate-500'}">${hw.day}</div>
+                                    <div class="font-bold text-sm text-slate-800">${hw.date}</div>
+                                </div>
+                            </div>
+                            ${content}
+                        </div>
+                    `;
+                });
+            },
+            renderLectures() {
+                const dbData = DB.getData();
+                const list = document.getElementById('st-lec-list');
+                list.innerHTML = '';
+                
+                if(dbData.lectures.length === 0) {
+                    list.innerHTML = `<li class="p-8 text-center text-slate-400 font-bold text-sm bg-white">등록된 강의가 없습니다.</li>`; return;
+                }
+
+                dbData.lectures.forEach(lec => {
+                    const iconColor = lec.type === '🔴' ? 'text-rose-500 bg-rose-50' : 'text-slate-500 bg-slate-100';
+                    const btnHtml = lec.type === '🔴' ? '<button class="bg-rose-50 text-rose-600 font-bold text-xs px-4 py-2 rounded-lg border border-rose-200">입장</button>' : '<button class="text-[#4176ff] font-bold text-xs px-4 py-2 rounded-lg bg-blue-50">시청</button>';
+                    
+                    list.innerHTML += `
+                        <li class="flex items-center justify-between p-5 hover:bg-slate-50 transition bg-white">
+                            <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 ${iconColor}">${lec.type}</div><div><p class="font-bold text-slate-800 text-sm">${lec.title}</p><p class="text-xs text-slate-400 mt-1">${lec.desc}</p></div></div>
+                            ${btnHtml}
+                        </li>
+                    `;
+                });
+            },
+            switchTab(tabId) {
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+                document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+                const navBtns = document.querySelectorAll('.nav-btn');
+                navBtns.forEach(btn => {
+                    btn.classList.remove('text-[#4176ff]');
+                    btn.classList.add('text-slate-400');
+                    const svg = btn.querySelector('svg');
+                    if(svg.getAttribute('fill') === 'currentColor') {
+                        svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor'); svg.setAttribute('stroke-width', '2');
+                    }
+                });
+
+                const activeBtn = event.currentTarget;
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('text-[#4176ff]');
+                const activeSvg = activeBtn.querySelector('svg');
+                activeSvg.setAttribute('fill', 'currentColor');
+                activeSvg.removeAttribute('stroke');
+            }
+        };
+
+        // 5. 관리자 콘텐츠 편집 로직
+        const adminApp = {
+            render() {
+                const dbData = DB.getData();
+                
+                const users = dbData.users.filter(u => u.role === 'student');
+                const sList = document.getElementById('ad-student-list');
+                sList.innerHTML = '';
+                if(users.length === 0) sList.innerHTML = `<tr><td colspan="3" class="py-10 text-center text-slate-400 text-sm">가입한 학생이 없습니다.</td></tr>`;
+                
+                users.forEach(u => {
+                    sList.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-4 px-5 font-bold text-slate-800">${u.name}</td>
+                            <td class="py-4 px-5 text-slate-600 font-mono">${u.id}</td>
+                            <td class="py-4 px-5 text-center">
+                                <button onclick="adminApp.deleteUser('${u.id}')" class="text-xs font-bold text-rose-500 bg-rose-50 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition">삭제</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('ad-conf-week').value = dbData.config.week;
+                document.getElementById('ad-conf-title').value = dbData.config.title;
+                document.getElementById('ad-conf-dday').value = dbData.config.dday;
+            },
+            updateConfig(e) {
+                e.preventDefault();
+                let dbData = DB.getData();
+                dbData.config.week = document.getElementById('ad-conf-week').value;
+                dbData.config.title = document.getElementById('ad-conf-title').value;
+                dbData.config.dday = document.getElementById('ad-conf-dday').value;
+                DB.setData(dbData);
+                alert("기본 정보가 학생 화면에 반영되었습니다.");
+            },
+            addLecture(e) {
+                e.preventDefault();
+                let dbData = DB.getData();
+                dbData.lectures.push({
+                    id: Date.now(),
+                    type: document.getElementById('ad-lec-type').value,
+                    title: document.getElementById('ad-lec-title').value,
+                    desc: document.getElementById('ad-lec-desc').value
+                });
+                DB.setData(dbData);
+                alert("강의가 학생 화면(강의 탭)에 배포되었습니다.");
+                e.target.reset();
+            },
+            addHomework(e) {
+                e.preventDefault();
+                let dbData = DB.getData();
+                dbData.homeworks.push({
+                    id: Date.now(),
+                    day: document.getElementById('ad-hw-day').value,
+                    date: document.getElementById('ad-hw-date').value,
+                    title: document.getElementById('ad-hw-title').value,
+                    status: 'pending'
+                });
+                DB.setData(dbData);
+                alert("숙제가 학생 화면(숙제 탭)에 배포되었습니다.");
+                e.target.reset();
+            },
+            deleteUser(id) {
+                if(confirm("이 학생 데이터를 완전히 지우시겠습니까?")) {
+                    let dbData = DB.getData();
+                    dbData.users = dbData.users.filter(u => u.id !== id);
+                    delete dbData.missions[id];
+                    dbData.subs = dbData.subs.filter(s => s.userId !== id);
+                    DB.setData(dbData);
+                    this.render();
+                }
+            }
+        };
+
+        // iPhone 하단 여백 보정
+        document.head.insertAdjacentHTML("beforeend", `<style>.pb-safe { padding-bottom: env(safe-area-inset-bottom); }</style>`);
+        
+        // 앱 실행
+        app.init();
+    </script>
+</body>
+</html>
