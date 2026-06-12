@@ -4,21 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://studycampus.app/" />
-    <title>studycampus - 온라인 학습 플랫폼</title>
+    <title>studycampus</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
+        
         body { font-family: 'Pretendard', sans-serif; background-color: #f4f6f8; color: #1e293b; overflow-x: hidden; }
         .font-logo { font-family: 'Caveat', cursive; letter-spacing: 0.5px; }
+        
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
         .bounce-in { animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
         .slide-left { animation: slideLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes bounceIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
         @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
         .circle-check { appearance: none; width: 1.5rem; height: 1.5rem; border: 2px solid #cbd5e1; border-radius: 50%; cursor: pointer; transition: all 0.2s; position: relative; }
         .circle-check:checked { background-color: #10b981; border-color: #10b981; }
         .circle-check:checked::after { content: ''; position: absolute; left: 8px; top: 4px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
@@ -39,13 +44,33 @@
         </div>
     </div>
 
+    <div id="file-viewer-modal" class="hidden fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
+        <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl scale-95 transition-transform" id="file-viewer-content">
+            <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2">🖼️ <span id="fv-title" class="truncate max-w-[200px] md:max-w-md">파일명</span></h3>
+                <button onclick="app.closeFileViewer()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">✕</button>
+            </div>
+            <div class="p-10 bg-slate-100 flex flex-col items-center justify-center min-h-[300px]">
+                <span class="text-6xl mb-4">📄</span>
+                <p class="text-slate-500 text-sm font-medium text-center">프론트엔드 환경이므로<br>실제 파일 렌더링은 시뮬레이션 됩니다.</p>
+                <div class="mt-4 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
+                    <p class="text-indigo-600 font-bold text-sm" id="fv-filename"></p>
+                </div>
+            </div>
+            <div class="p-4 bg-white text-right">
+                <button onclick="app.closeFileViewer()" class="bg-slate-800 hover:bg-slate-900 transition text-white px-6 py-2 rounded-xl font-bold text-sm">닫기</button>
+            </div>
+        </div>
+    </div>
+
     <div id="auth-view" class="fixed inset-0 bg-[#f4f6f8] z-50 flex items-center justify-center fade-in px-4">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl border border-slate-100 p-8">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8">
             <div class="text-center mb-10"><h1 class="font-logo text-5xl text-[#1a365d] mb-1">studycampus</h1><p id="auth-subtitle" class="text-slate-400 text-sm font-medium">계정에 로그인하세요</p></div>
             <form id="login-form" onsubmit="app.login(event)" class="space-y-4">
                 <div><input type="text" id="login-id" placeholder="아이디 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 transition"></div>
                 <div><input type="password" id="login-pw" placeholder="비밀번호 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 transition"></div>
                 <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition shadow-md">로그인</button>
+                <div class="flex justify-center gap-4 text-xs text-slate-400 mt-4 font-medium"><button type="button" class="hover:text-slate-600">아이디 찾기</button><span>|</span><button type="button" class="hover:text-slate-600">비밀번호 재설정</button></div>
                 <div class="relative flex py-6 items-center"><div class="flex-grow border-t border-slate-200"></div><span class="shrink-0 mx-4 text-slate-400 text-xs">또는</span><div class="flex-grow border-t border-slate-200"></div></div>
                 <button type="button" onclick="authUI.toggleMode('signup')" class="w-full bg-white border border-slate-300 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-50 transition">회원가입</button>
             </form>
@@ -61,7 +86,11 @@
                 <div class="flex gap-2">
                     <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">학교</label><input type="text" id="reg-school" placeholder="학교명" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
                     <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">학년</label>
-                        <select id="reg-grade" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3"><option value="중1">중1</option><option value="중2">중2</option><option value="중3">중3</option><option value="고1">고1</option><option value="고2" selected>고2</option><option value="고3">고3</option><option value="N수">N수</option><option value="대학교 1학년">대학교 1학년</option><option value="대학교 2학년">대학교 2학년</option><option value="대학교 3학년">대학교 3학년</option><option value="대학교 4학년">대학교 4학년</option></select>
+                        <select id="reg-grade" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3">
+                            <option value="중1">중1</option><option value="중2">중2</option><option value="중3">중3</option>
+                            <option value="고1">고1</option><option value="고2" selected>고2</option><option value="고3">고3</option><option value="N수">N수</option>
+                            <option value="대학교 1학년">대학교 1학년</option><option value="대학교 2학년">대학교 2학년</option><option value="대학교 3학년">대학교 3학년</option><option value="대학교 4학년">대학교 4학년</option>
+                        </select>
                     </div>
                 </div>
                 <div><label class="block text-xs font-bold text-slate-500 mb-1">학부모 전화번호</label><input type="text" id="reg-parent" placeholder="010-0000-0000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
@@ -71,6 +100,7 @@
             </form>
         </div>
     </div>
+
 
     <div id="student-view" class="hidden flex-col h-screen w-full bg-[#f4f6f8]">
         <header class="bg-white h-16 border-b border-slate-200 flex justify-center items-center px-4 shrink-0 sticky top-0 z-40 w-full">
@@ -118,7 +148,7 @@
 
                 <div id="tab-homework" class="tab-content hidden fade-in space-y-6">
                     <div class="bg-[#4176ff] rounded-3xl p-8 text-center text-white shadow-md">
-                        <h2 class="text-3xl font-black"><span id="st-hw-week">WEEK 6</span> <span class="bg-white/20 text-xs px-3 py-1 rounded-full ml-2 align-middle">이번 주</span></h2>
+                        <h2 class="text-3xl font-black"><span id="st-hw-week">WEEK</span> <span class="bg-white/20 text-xs px-3 py-1 rounded-full ml-2 align-middle">이번 주</span></h2>
                         <p class="text-sm text-blue-100 mt-3" id="st-hw-title">과정명</p>
                     </div>
                     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden" id="st-hw-container"></div>
@@ -135,7 +165,6 @@
                 </div>
 
                 <div id="tab-my" class="tab-content hidden fade-in space-y-6 max-w-2xl mx-auto">
-                    
                     <div class="bg-red-50 border border-red-100 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
                         <div class="flex items-center gap-4 text-sm font-bold text-red-500">
                             <span class="text-3xl">🔑</span>
@@ -144,7 +173,18 @@
                                 <span id="st-dday" class="text-lg">수강권 마감 D-DAY</span>
                             </div>
                         </div>
-                        <button onclick="studentApp.reqExtension()" class="w-full md:w-auto bg-red-500 hover:bg-red-600 transition text-white text-xs font-bold px-6 py-3.5 rounded-xl shadow-sm">수강 연장 신청하기</button>
+                        <button onclick="studentApp.reqExtension()" class="w-full md:w-auto bg-red-500 hover:bg-red-600 transition text-white text-xs font-bold px-6 py-3.5 rounded-xl shadow-sm">수강 연장 확인하기</button>
+                    </div>
+
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 border-t-4 border-t-indigo-600">
+                        <h3 class="font-bold text-slate-800 mb-3">💳 수강 신청 입금 처리 요청하기</h3>
+                        <p class="text-xs text-slate-500 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">입금 계좌: [하나은행] 342-910508-31507 (예금주: 이*호)</p>
+                        <form onsubmit="studentApp.sendExtRequest(event)" class="space-y-3">
+                            <div><label class="block text-xs font-bold text-slate-500 mb-1">학생명</label><input type="text" id="ext-req-name" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500 bg-white"></div>
+                            <div><label class="block text-xs font-bold text-slate-500 mb-1">전화번호</label><input type="text" id="ext-req-phone" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500 bg-white"></div>
+                            <div><label class="block text-xs font-bold text-slate-500 mb-1">증명 첨부사진 (입금 캡처 등)</label><input type="file" id="ext-req-file" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"></div>
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 transition text-white font-bold py-3.5 rounded-xl text-sm shadow-sm mt-2">요청하기</button>
+                        </form>
                     </div>
 
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
@@ -196,113 +236,173 @@
             </div>
         </header>
 
+        <div class="bg-white border-b border-slate-200 sticky top-16 z-30 shadow-sm shrink-0">
+            <div class="max-w-6xl mx-auto flex gap-6 px-4">
+                <button onclick="adminApp.switchTab('students')" id="ad-tab-btn-students" class="py-3.5 text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition">👨‍🎓 학생/요청 관리</button>
+                <button onclick="adminApp.switchTab('contents')" id="ad-tab-btn-contents" class="py-3.5 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">🖥️ 홈페이지(콘텐츠) 편집</button>
+            </div>
+        </div>
+
         <main class="flex-1 overflow-y-auto no-scrollbar p-4 md:p-8 w-full">
-            <div class="max-w-6xl mx-auto space-y-8">
-                <div>
-                    <h2 class="text-2xl font-black text-slate-900">선생님 통합 관리 시스템</h2>
-                    <p class="text-slate-500 mt-1 text-sm">학생별 세부 진도 파악 및 실시간 알림, 콘텐츠 배포를 관리합니다.</p>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2 space-y-6">
-                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[300px]">
-                            <div class="p-5 border-b border-slate-100 bg-slate-50"><h3 class="font-bold text-[#1a365d] text-base">👥 수강생 종합 명단 (명단 클릭 시 상세 조회)</h3></div>
-                            <div class="flex-1 overflow-x-auto p-0">
-                                <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-white sticky top-0 border-b border-slate-100 text-slate-500">
-                                        <tr><th class="py-4 px-5">학생 이름</th><th class="py-4 px-5">아이디</th><th class="py-4 px-5">담당 선생님</th><th class="py-4 px-5 text-center">권한 및 관리</th></tr>
-                                    </thead>
-                                    <tbody id="ad-student-list" class="divide-y divide-slate-50 text-slate-700"></tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-6 min-h-[300px]" id="ad-detail-panel">
-                            <div class="text-center py-10 text-slate-400 font-medium">명단에서 학생을 선택하면 상세 정보 및 숙제 파일 내역이 표시됩니다.</div>
-                        </div>
+            <div class="max-w-6xl mx-auto">
+                
+                <div id="ad-tab-students" class="space-y-8 fade-in">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900">학생 통합 관리 시스템</h2>
+                        <p class="text-slate-500 mt-1 text-sm">학생별 세부 진도 파악 및 담당 지정, 수강권 연장을 관리합니다.</p>
                     </div>
 
-                    <div class="lg:col-span-1 space-y-6">
-                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 h-fit space-y-5">
-                            <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-3">💾 데이터 백업 및 복구</h3>
-                            <div class="space-y-4">
-                                <button onclick="adminApp.exportData()" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 transition shadow-sm">📥 데이터 백업 다운로드</button>
-                                <div class="relative mt-2"><label class="block text-xs font-bold text-slate-500 mb-1">백업 파일 복구하기 (.json)</label><input type="file" id="import-file" accept=".json" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"><button onclick="adminApp.importData()" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl hover:bg-slate-900 transition mt-2 shadow-sm">복구 실행</button></div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 h-fit space-y-5 border-t-4 border-t-indigo-600">
-                            <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-3">📢 공지사항 팝업 띄우기</h3>
-                            <form onsubmit="adminApp.addAnnouncement(event)" class="space-y-4">
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">배포 대상</label><select id="ad-ann-target" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-indigo-500 bg-white outline-none"></select></div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">공지 제목</label><input type="text" id="ad-ann-title" required placeholder="ex) 내일 휴강 안내" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none"></div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">상세 내용</label><textarea id="ad-ann-content" rows="2" required placeholder="학생들이 로그인하면 바로 봅니다." class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none resize-none"></textarea></div>
-                                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition">공지 띄우기</button>
-                            </form>
-                        </div>
-
-                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-5">
-                            <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-3">⚙️ 기본 배너 설정</h3>
-                            <form onsubmit="adminApp.updateConfig(event)" class="space-y-4">
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">현재 주차 (Week)</label><input type="text" id="ad-conf-week" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">코스 이름 (타이틀)</label><input type="text" id="ad-conf-title" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
-                                <button type="submit" class="w-full bg-[#1a365d] text-white font-bold py-3.5 rounded-xl hover:bg-blue-900 transition">기본 정보 저장</button>
-                            </form>
-                        </div>
-
-                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-5">
-                            <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-3">📢 신규 과제 배포</h3>
-                            <form onsubmit="adminApp.addHomework(event)" class="space-y-4">
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">배포 대상</label><select id="ad-hw-target" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-blue-500 bg-white outline-none"></select></div>
-                                <div class="flex gap-2">
-                                    <div class="w-1/3"><label class="block text-xs font-bold text-slate-500 mb-1">요일</label><select id="ad-hw-day" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-blue-500 bg-white outline-none"><option value="월">월</option><option value="화">화</option><option value="수">수</option><option value="목">목</option><option value="금" selected>금</option><option value="토">토</option><option value="일">일</option></select></div>
-                                    <div class="w-2/3"><label class="block text-xs font-bold text-slate-500 mb-1">날짜</label><input type="text" id="ad-hw-date" placeholder="ex) 06/12" required class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[350px]">
+                                <div class="p-5 border-b border-slate-100 bg-slate-50"><h3 class="font-bold text-[#1a365d] text-base">👥 수강생 종합 명단</h3></div>
+                                <div class="flex-1 overflow-x-auto p-0">
+                                    <table class="w-full text-left text-sm whitespace-nowrap">
+                                        <thead class="bg-white sticky top-0 border-b border-slate-100 text-slate-500">
+                                            <tr><th class="py-4 px-5">학생 이름</th><th class="py-4 px-5">아이디</th><th class="py-4 px-5">담당 선생님</th><th class="py-4 px-5 text-center">관리</th></tr>
+                                        </thead>
+                                        <tbody id="ad-student-list" class="divide-y divide-slate-50 text-slate-700"></tbody>
+                                    </table>
                                 </div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">숙제 제목</label><input type="text" id="ad-hw-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
-                                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition">과제 배포하기</button>
-                            </form>
+                            </div>
+
+                            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm h-[350px] flex flex-col">
+                                <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2 shrink-0">💳 입금 처리 및 수강 연장 요청 <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full">실시간</span></h3>
+                                <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-ext-req"></div>
+                            </div>
                         </div>
+
+                        <div class="space-y-6">
+                            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-6 min-h-[500px]" id="ad-detail-panel">
+                                <div class="text-center py-20 text-slate-400 font-medium">명단에서 학생을 선택하면 상세 정보가 표시됩니다.</div>
+                            </div>
+
+                            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm h-[300px] flex flex-col">
+                                <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2 shrink-0">📨 학생 제안 및 개선사항 <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full">실시간</span></h3>
+                                <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-sugg"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ad-tab-contents" class="hidden space-y-12 fade-in pb-10">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900">홈페이지 콘텐츠 편집</h2>
+                        <p class="text-slate-500 mt-1 text-sm">카테고리(페이지)별로 학생 화면에 노출될 콘텐츠를 추가하고 관리합니다.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-12">
                         
-                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-5">
-                            <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-3">📼 강의 영상 배포</h3>
-                            <form onsubmit="adminApp.addLecture(event)" class="space-y-4">
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">유형</label><select id="ad-lec-type" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 bg-white outline-none"><option value="🔴">🔴 라이브 수업</option><option value="📼">📼 녹화본(VOD)</option></select></div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">강의 제목</label><input type="text" id="ad-lec-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">영상 링크 (URL)</label><input type="text" id="ad-lec-link" placeholder="https://youtube.com/..." class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">부가 설명</label><input type="text" id="ad-lec-desc" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
-                                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition">강의 배포하기</button>
-                            </form>
+                        <div class="space-y-6">
+                            <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-3 flex items-center gap-2">🏠 공통 / 홈 화면 배너 관리</h2>
+                            
+                            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4">
+                                <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-2">⚙️ 기본 배너 설정</h3>
+                                <form onsubmit="adminApp.updateConfig(event)" class="space-y-3">
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">현재 주차 (Week)</label><input type="text" id="ad-conf-week" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">코스 이름 (타이틀)</label><input type="text" id="ad-conf-title" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                                    <button type="submit" class="w-full bg-[#1a365d] text-white font-bold py-3 rounded-xl hover:bg-blue-900 transition text-sm">저장</button>
+                                </form>
+                            </div>
+
+                            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4 border-t-4 border-t-indigo-600">
+                                <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-2">📢 신규 공지사항 배포</h3>
+                                <form onsubmit="adminApp.addAnnouncement(event)" class="space-y-3">
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">배포 대상</label><select id="ad-ann-target" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-indigo-500 bg-white outline-none"></select></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">공지 제목</label><input type="text" id="ad-ann-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none"></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">상세 내용</label><textarea id="ad-ann-content" rows="2" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none resize-none"></textarea></div>
+                                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition shadow-sm text-sm">배포하기</button>
+                                </form>
+                            </div>
+                            
+                            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col h-[250px]">
+                                <h3 class="font-bold text-slate-800 text-sm mb-3 shrink-0">📢 등록된 공지사항 목록</h3>
+                                <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-anns"></div>
+                            </div>
                         </div>
 
-                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-5">
-                            <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-3">🗂️ 자료실 카테고리 & 파일 업로드</h3>
-                            <form onsubmit="adminApp.addMatCategory(event)" class="flex gap-2">
-                                <input type="text" id="ad-mat-new-cat" placeholder="새 카테고리 추가" required class="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:border-blue-500 outline-none">
-                                <button type="submit" class="bg-slate-800 text-white font-bold px-4 py-2 rounded-xl hover:bg-slate-900 text-xs transition">추가</button>
-                            </form>
-                            <div id="ad-mat-cat-list" class="flex flex-wrap gap-2"></div>
-                            <hr class="border-slate-100">
-                            <form onsubmit="adminApp.addMaterial(event)" class="space-y-4">
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">카테고리 선택</label><select id="ad-mat-cat" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 bg-white outline-none"></select></div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">자료 제목</label><input type="text" id="ad-mat-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-1">파일 첨부</label><input type="file" id="ad-mat-file" required class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 cursor-pointer"></div>
-                                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition">자료실에 업로드</button>
-                            </form>
+                        <div class="space-y-6">
+                            <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-3 flex items-center gap-2">📝 숙제 화면 관리</h2>
+                            
+                            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4 border-t-4 border-t-blue-500">
+                                <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-2">➕ 신규 과제 배포</h3>
+                                <form onsubmit="adminApp.addHomework(event)" class="space-y-3">
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">배포 대상</label><select id="ad-hw-target" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-blue-500 bg-white outline-none"></select></div>
+                                    <div class="flex gap-2">
+                                        <div class="w-1/3"><label class="block text-xs font-bold text-slate-500 mb-1">요일</label><select id="ad-hw-day" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-blue-500 bg-white outline-none"><option value="월">월</option><option value="화">화</option><option value="수">수</option><option value="목">목</option><option value="금" selected>금</option><option value="토">토</option><option value="일">일</option></select></div>
+                                        <div class="w-2/3"><label class="block text-xs font-bold text-slate-500 mb-1">날짜</label><input type="text" id="ad-hw-date" placeholder="ex) 06/12" required class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                                    </div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">숙제 제목</label><input type="text" id="ad-hw-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-sm text-sm">과제 배포</button>
+                                </form>
+                            </div>
+
+                            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col h-[250px]">
+                                <h3 class="font-bold text-slate-800 text-sm mb-3 shrink-0">📋 배포된 숙제 목록</h3>
+                                <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-hws"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-3 flex items-center gap-2">📼 강의 화면 관리</h2>
+                            
+                            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4 border-t-4 border-t-rose-500">
+                                <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-2">➕ 강의 영상 배포</h3>
+                                <form onsubmit="adminApp.addLecture(event)" class="space-y-3">
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">유형</label><select id="ad-lec-type" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 bg-white outline-none"><option value="🔴">🔴 라이브 수업</option><option value="📼">📼 녹화본(VOD)</option></select></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">강의 제목</label><input type="text" id="ad-lec-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">영상 링크 (URL)</label><input type="text" id="ad-lec-link" placeholder="https://youtube.com/..." class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">부가 설명</label><input type="text" id="ad-lec-desc" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                                    <button type="submit" class="w-full bg-rose-500 text-white font-bold py-3 rounded-xl hover:bg-rose-600 transition shadow-sm text-sm">영상 등록</button>
+                                </form>
+                            </div>
+
+                            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col h-[250px]">
+                                <h3 class="font-bold text-slate-800 text-sm mb-3 shrink-0">📼 배포된 강의 목록</h3>
+                                <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-lecs"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-3 flex items-center gap-2">🗂️ 자료실 화면 관리</h2>
+                            
+                            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4 border-t-4 border-t-emerald-500">
+                                <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-2">📂 카테고리 & 파일 업로드</h3>
+                                <form onsubmit="adminApp.addMatCategory(event)" class="flex gap-2">
+                                    <input type="text" id="ad-mat-new-cat" placeholder="새 카테고리명 추가" required class="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none">
+                                    <button type="submit" class="bg-slate-800 text-white font-bold px-4 py-2 rounded-xl hover:bg-slate-900 text-xs transition">추가</button>
+                                </form>
+                                <div id="ad-mat-cat-list" class="flex flex-wrap gap-2 pb-2 border-b border-slate-100"></div>
+                                
+                                <form onsubmit="adminApp.addMaterial(event)" class="space-y-3 pt-2">
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">카테고리 선택</label><select id="ad-mat-cat" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 bg-white outline-none"></select></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">자료 제목</label><input type="text" id="ad-mat-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 outline-none"></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">파일 첨부</label><input type="file" id="ad-mat-file" required class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-emerald-50 file:text-emerald-700 cursor-pointer"></div>
+                                    <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-sm text-sm">업로드</button>
+                                </form>
+                            </div>
+
+                            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col h-[250px]">
+                                <h3 class="font-bold text-slate-800 text-sm mb-3 shrink-0">🗂️ 등록된 자료 목록</h3>
+                                <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-mats"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="md:col-span-2 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-                        <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">📨 학생 제안 및 개선사항 <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full">실시간 수신</span></h3>
-                        <div class="max-h-60 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-sugg"></div>
+                    <div class="pt-8">
+                        <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-3 flex items-center gap-2">⚙️ 시스템 백업 및 복구</h2>
+                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mt-6 max-w-xl">
+                            <p class="text-xs text-slate-500 mb-4">데이터를 안전하게 파일로 다운로드하고, 필요시 복구할 수 있습니다.</p>
+                            <button onclick="adminApp.exportData()" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl hover:bg-slate-900 transition shadow-sm mb-4">📥 전체 데이터 백업 다운로드</button>
+                            <div class="relative p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                <label class="block text-xs font-bold text-slate-700 mb-2">백업 파일(.json) 복구하기</label>
+                                <input type="file" id="import-file" accept=".json" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-white file:text-slate-700 cursor-pointer mb-2">
+                                <button onclick="adminApp.importData()" class="w-full bg-white border border-slate-300 text-slate-700 font-bold py-2.5 rounded-xl hover:bg-slate-100 transition shadow-sm text-sm">복구 실행</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm"><h3 class="font-bold text-slate-800 text-sm mb-3">📢 공지사항 (삭제)</h3><div class="max-h-60 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-anns"></div></div>
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm"><h3 class="font-bold text-slate-800 text-sm mb-3">📋 배포된 과제 (삭제)</h3><div class="max-h-60 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-hws"></div></div>
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm"><h3 class="font-bold text-slate-800 text-sm mb-3">📼 강의 영상 (삭제)</h3><div class="max-h-60 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-lecs"></div></div>
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm"><h3 class="font-bold text-slate-800 text-sm mb-3">🗂️ 등록된 자료 (삭제)</h3><div class="max-h-60 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-mats"></div></div>
-                </div>
 
+                </div>
             </div>
         </main>
     </div>
@@ -320,7 +420,7 @@
                         ],
                         config: { week: 'WEEK 6', title: '기출제로원', dday: 'D-2' },
                         missions: {}, announcements: [], homeworks: [], lectures: [], materials: [], subs: [], notifications: [], suggestions: [],
-                        materialCategories: ['공지', '주교재', '숙제제출예시', '기타자료']
+                        extensionRequests: [], materialCategories: ['공지', '주교재', '숙제제출예시', '기타자료']
                     };
                     localStorage.setItem(DB_KEY, JSON.stringify(initialData));
                 } else {
@@ -328,6 +428,7 @@
                     let needsUpdate = false;
                     if(!parsedData.notifications) { parsedData.notifications = []; needsUpdate = true; }
                     if(!parsedData.suggestions) { parsedData.suggestions = []; needsUpdate = true; }
+                    if(!parsedData.extensionRequests) { parsedData.extensionRequests = []; needsUpdate = true; }
                     if(!parsedData.materialCategories) { parsedData.materialCategories = ['공지', '주교재', '숙제제출예시', '기타자료']; needsUpdate = true; }
                     if(!parsedData.materials) { parsedData.materials = []; needsUpdate = true; }
                     parsedData.users.forEach(u => { if(u.role === 'student' && !u.expireDate) { u.expireDate = ''; needsUpdate = true; } });
@@ -359,10 +460,24 @@
             selectedStudentId: null,
             init() { DB.init(); this.route(); },
             
+            viewFile(fileName) {
+                document.getElementById('fv-title').textContent = fileName;
+                document.getElementById('fv-filename').textContent = fileName;
+                const modal = document.getElementById('file-viewer-modal');
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.querySelector('#file-viewer-content').classList.remove('scale-95'), 10);
+            },
+            closeFileViewer() {
+                const modal = document.getElementById('file-viewer-modal');
+                modal.querySelector('#file-viewer-content').classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 200);
+            },
+
             addNotification(targetId, title, message) {
                 let dbData = DB.getData();
                 dbData.notifications.unshift({ id: Date.now(), target: targetId, title: title, message: message, date: new Date().toLocaleString(), read: false });
                 DB.setData(dbData);
+                this.updateNotiDot(DB.getAuth());
             },
             toggleNoti() {
                 const panel = document.getElementById('notification-panel');
@@ -376,7 +491,6 @@
                 const myNotis = dbData.notifications.filter(n => n.target === user.id || n.target === 'all' || (user.role === 'admin' && n.target === 'admin'));
                 const list = document.getElementById('noti-list');
                 list.innerHTML = '';
-
                 if(myNotis.length === 0) list.innerHTML = `<p class="text-center text-slate-400 text-sm mt-10">새로운 알림이 없습니다.</p>`;
                 else {
                     myNotis.forEach(n => {
@@ -506,7 +620,25 @@
                 this.renderMaterials();
                 this.switchTab('home');
             },
-            reqExtension() { alert("수강을 연장하시려면 아래 관리자 계좌로 입금 후 선생님께 말씀해주세요.\n\n🏦 입금 계좌: [국민은행] 123456-78-901234 (예금주: 스터디캠퍼스)"); },
+
+            reqExtension() { alert("수강을 연장하시려면 studycampus 계좌로 입금 후 '수강 신청 입금 처리 요청하기'에 말씀해주세요.\n\n🏦 입금 계좌: [하나은행] 342-910508-31507 (예금주: 이*호)"); },
+            sendExtRequest(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('ext-req-file');
+                const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : '';
+                
+                let dbData = DB.getData();
+                dbData.extensionRequests.push({
+                    id: Date.now(), userId: this.currentUser.id,
+                    name: document.getElementById('ext-req-name').value, phone: document.getElementById('ext-req-phone').value,
+                    proofFile: fileName, date: new Date().toLocaleString()
+                });
+                DB.setData(dbData);
+                app.addNotification('admin', '수강 연장 결제 확인 요청', `${this.currentUser.name} 학생의 입금 확인 요청이 접수되었습니다.`);
+                alert("입금 확인 요청이 선생님께 성공적으로 전송되었습니다.");
+                e.target.reset();
+            },
+
             updateXP(amount) {
                 let dbData = DB.getData();
                 let myIdx = dbData.users.findIndex(u => u.id === this.currentUser.id);
@@ -549,6 +681,7 @@
                 const list = document.getElementById('st-mission-list');
                 list.innerHTML = '';
                 texts.forEach((text, i) => {
+                    const isDone = myMissions[i];
                     list.innerHTML += `<li class="flex items-center gap-4 p-5 hover:bg-slate-50 transition cursor-pointer" onclick="studentApp.toggleMission(${i})"><input type="checkbox" ${isDone ? 'checked' : ''} class="circle-check shrink-0 pointer-events-none"><span class="text-sm font-bold ${isDone ? 'text-slate-400 line-through' : 'text-slate-700'}">${text}</span></li>`;
                 });
             },
@@ -565,10 +698,8 @@
                     dbData.subs.push({ hwId: hwId, userId: this.currentUser.id, date: new Date().toLocaleDateString(), checked: false, files: fileNames });
                     DB.setData(dbData);
                     this.updateXP(50);
-                    
                     const hwTitle = dbData.homeworks.find(h=>h.id === hwId).title;
                     app.addNotification('admin', '과제 제출 알림', `${this.currentUser.name} 학생이 [${hwTitle}] 과제를 제출했습니다.`);
-
                     alert("숙제 제출 완료! 선생님의 검사를 대기합니다. (+50XP)");
                     this.renderHomeworks();
                 }
@@ -586,14 +717,11 @@
                     if(submission) {
                         const statusText = submission.checked ? '✅ 채점 완료(통과)' : '확인 대기중';
                         const statusClass = submission.checked ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600';
-                        
-                        // 💡 제출된 다중 파일을 예쁜 버튼 형태로 렌더링 (보기 시뮬레이션 지원)
                         let filesHtml = '';
                         if(submission.files && submission.files.length > 0) {
-                            filesHtml = `<div class="mt-2 space-y-1">` + submission.files.map(f => `<button onclick="alert('첨부파일 열기: ${f}')" class="text-[11px] text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition inline-flex items-center gap-1 w-fit">📎 ${f}</button>`).join('') + `</div>`;
+                            filesHtml = `<div class="mt-2 flex flex-wrap gap-1">` + submission.files.map(f => `<button onclick="app.viewFile('${f}')" class="text-[11px] text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition inline-flex items-center gap-1 w-fit border border-blue-100">📎 ${f}</button>`).join('') + `</div>`;
                         }
-
-                        content = `<div class="p-6 bg-white border-t border-blue-50 flex justify-between items-center"><div class="flex flex-col"><span class="text-sm font-black text-slate-800">${hw.title}</span>${filesHtml}</div><span class="${statusClass} px-3 py-1.5 rounded-lg text-xs font-bold">${statusText}</span></div>`;
+                        content = `<div class="p-6 bg-white border-t border-blue-50 flex justify-between items-center"><div class="flex flex-col"><span class="text-sm font-black text-slate-800">${hw.title}</span>${filesHtml}</div><span class="${statusClass} px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 ml-2">${statusText}</span></div>`;
                     } else if (hw.status === 'none') {
                         content = `<div class="p-8 text-center bg-white border-t border-slate-50"><div class="text-3xl mb-2">😌</div><p class="text-xs text-slate-400 font-bold">숙제 없는 날이에요</p></div>`;
                     } else {
@@ -635,11 +763,10 @@
 
                 filteredMats.forEach(mat => {
                     let icon = '📄'; if(mat.category === '공지') icon = '📢'; if(mat.category === '주교재') icon = '📚';
-                    list.innerHTML += `<li class="p-4 flex items-center justify-between hover:bg-slate-50 transition bg-white border-b border-slate-50 last:border-0"><div class="flex items-start gap-3"><span class="text-xl mt-0.5 shrink-0">${icon}</span><div><p class="text-[13px] font-bold text-slate-800">${mat.title}</p><p class="text-[10px] text-slate-400 mt-1">${mat.category} · 첨부: ${mat.fileName} (${mat.date})</p></div></div><button onclick="alert('파일 다운로드 시작: ${mat.fileName}')" class="text-xs bg-slate-100 text-slate-600 font-bold px-3 py-1.5 rounded-lg shrink-0 ml-2 hover:bg-slate-200 transition">다운로드</button></li>`;
+                    list.innerHTML += `<li class="p-4 flex items-center justify-between hover:bg-slate-50 transition bg-white border-b border-slate-50 last:border-0"><div class="flex items-start gap-3"><span class="text-xl mt-0.5 shrink-0">${icon}</span><div><p class="text-[13px] font-bold text-slate-800">${mat.title}</p><p class="text-[10px] text-slate-400 mt-1">${mat.category} · 첨부: ${mat.fileName} (${mat.date})</p></div></div><button onclick="app.viewFile('${mat.fileName}')" class="text-xs bg-slate-100 text-slate-600 font-bold px-3 py-1.5 rounded-lg shrink-0 ml-2 hover:bg-slate-200 transition border border-slate-200">다운로드</button></li>`;
                 });
             },
             
-            // MY 설정 저장, 제안하기, 탈퇴
             saveMyInfo() {
                 let dbData = DB.getData();
                 let user = dbData.users.find(u => u.id === this.currentUser.id);
@@ -648,16 +775,14 @@
                 DB.setData(dbData); DB.setAuth(user);
                 this.currentUser = user;
                 alert("내 정보가 성공적으로 수정되었습니다.");
-                this.initData(user); // 재렌더링
+                this.initData(user); 
             },
             sendSuggestion(e) {
                 e.preventDefault();
                 let dbData = DB.getData();
                 dbData.suggestions.push({
-                    studentName: this.currentUser.name,
-                    phone: this.currentUser.phone,
-                    content: document.getElementById('sugg-content').value,
-                    extra: document.getElementById('sugg-extra').value,
+                    studentName: this.currentUser.name, phone: this.currentUser.phone,
+                    content: document.getElementById('sugg-content').value, extra: document.getElementById('sugg-extra').value,
                     date: new Date().toLocaleString()
                 });
                 DB.setData(dbData);
@@ -694,21 +819,24 @@
 
         // 관리자 로직
         const adminApp = {
+            currentTab: 'students',
+            
             render() {
+                this.switchTab(this.currentTab);
+                
                 const dbData = DB.getData();
                 const users = dbData.users.filter(u => u.role === 'student');
                 const sList = document.getElementById('ad-student-list');
                 sList.innerHTML = '';
-                if(users.length === 0) sList.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-slate-400 text-sm">가입한 학생이 없습니다.</td></tr>`;
+                if(users.length === 0) sList.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-slate-400 text-sm">가입한 학생이 없습니다.</td></tr>`;
                 
                 users.forEach(u => {
-                    const teacherBadge = u.teacher ? `<span class="text-[11px] font-bold text-indigo-600">${u.teacher}T</span>` : `<span class="text-[10px] font-bold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded">선생님 미배정</span>`;
-                    sList.innerHTML += `<tr class="hover:bg-indigo-50/50 transition cursor-pointer" onclick="adminApp.selectStudent('${u.id}')"><td class="py-4 px-5 font-bold text-slate-900 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>${u.name}</td><td class="py-4 px-5 text-slate-500 font-mono text-xs">${u.id}</td><td class="py-4 px-5 text-slate-600 text-xs">${u.school} ${u.grade}</td><td class="py-4 px-5">${teacherBadge}</td><td class="py-4 px-5 text-center flex justify-center gap-2"><button onclick="event.stopPropagation(); adminApp.grantAdmin('${u.id}')" class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1.5 rounded-lg hover:bg-blue-100 transition shadow-sm">선생님 임명</button><button onclick="event.stopPropagation(); adminApp.deleteUser('${u.id}')" class="text-[10px] font-bold text-rose-500 bg-rose-50 px-2.5 py-1.5 rounded-lg hover:bg-rose-100 transition shadow-sm">학생삭제</button></td></tr>`;
+                    const teacherBadge = u.teacher ? `<span class="text-[11px] font-bold text-indigo-600">${u.teacher}T</span>` : `<span class="text-[10px] font-bold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100">미배정</span>`;
+                    sList.innerHTML += `<tr class="hover:bg-indigo-50/50 transition cursor-pointer" onclick="adminApp.selectStudent('${u.id}')"><td class="py-4 px-5 font-bold text-slate-900 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>${u.name}</td><td class="py-4 px-5 text-slate-500 font-mono text-xs">${u.id}</td><td class="py-4 px-5">${teacherBadge}</td><td class="py-4 px-5 text-center flex justify-center gap-2"><button onclick="event.stopPropagation(); adminApp.grantAdmin('${u.id}')" class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1.5 rounded-lg hover:bg-blue-100 transition border border-blue-100">임명</button><button onclick="event.stopPropagation(); adminApp.deleteUser('${u.id}')" class="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-1.5 rounded-lg hover:bg-rose-100 transition border border-rose-100">삭제</button></td></tr>`;
                 });
 
                 document.getElementById('ad-conf-week').value = dbData.config.week;
                 document.getElementById('ad-conf-title').value = dbData.config.title;
-                document.getElementById('ad-conf-dday').value = dbData.config.dday;
 
                 const renderTargets = (selectId) => {
                     const targetSelect = document.getElementById(selectId);
@@ -719,18 +847,97 @@
                 }
                 renderTargets('ad-ann-target'); renderTargets('ad-hw-target');
 
+                this.renderExtRequests();
+                this.renderSuggestions();
                 this.renderMaterialCategories();
                 this.renderCMSLists();
-                this.renderSuggestions();
+                
                 if(app.selectedStudentId) this.selectStudent(app.selectedStudentId);
             },
-            
-            grantAdmin(userId) {
-                if(confirm("이 학생에게 선생님(관리자) 권한을 부여하시겠습니까?\n다음 번 로그인 시 선생님 패널로 접속됩니다.")) {
-                    let dbData = DB.getData();
-                    let user = dbData.users.find(u => u.id === userId);
-                    if(user) { user.role = 'admin'; DB.setData(dbData); alert(`${user.name} 님이 선생님으로 승급되었습니다.`); this.render(); }
+
+            // 상단 탭 전환 
+            switchTab(tabId) {
+                this.currentTab = tabId;
+                document.getElementById('ad-tab-students').classList.add('hidden');
+                document.getElementById('ad-tab-contents').classList.add('hidden');
+                document.getElementById(`ad-tab-${tabId}`).classList.remove('hidden');
+
+                const btnStudents = document.getElementById('ad-tab-btn-students');
+                const btnContents = document.getElementById('ad-tab-btn-contents');
+
+                if(tabId === 'students') {
+                    btnStudents.className = "py-3.5 text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition";
+                    btnContents.className = "py-3.5 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+                } else {
+                    btnContents.className = "py-3.5 text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition";
+                    btnStudents.className = "py-3.5 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
                 }
+            },
+
+            renderExtRequests() {
+                const dbData = DB.getData();
+                const box = document.getElementById('ad-manage-ext-req');
+                box.innerHTML = '';
+                if(!dbData.extensionRequests || dbData.extensionRequests.length === 0) {
+                    box.innerHTML = `<div class="flex-1 flex items-center justify-center text-xs text-slate-400">접수된 결제 확인 요청이 없습니다.</div>`; return;
+                }
+                dbData.extensionRequests.slice().reverse().forEach((req) => {
+                    box.innerHTML += `
+                        <div class="p-4 hover:bg-slate-50 transition text-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-slate-800">${req.name} 학생 <span class="text-xs font-normal text-slate-500">(${req.phone})</span></span>
+                                <span class="text-[10px] text-slate-400">${req.date}</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-2">
+                                <button onclick="app.viewFile('${req.proofFile}')" class="text-[11px] text-blue-600 font-bold bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition border border-blue-100 shadow-sm">📎 증명사진 보기</button>
+                                <div class="space-x-2">
+                                    <button onclick="adminApp.approveExtReq('${req.userId}')" class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition shadow-sm">연장 제어판</button>
+                                    <button onclick="adminApp.deleteExtReq(${req.id})" class="text-[10px] font-bold text-red-500 hover:underline">삭제</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            },
+            approveExtReq(userId) {
+                this.selectStudent(userId);
+                alert("우측의 학생 상세 패널에서 [수강 만료일 관리]를 설정해주세요.");
+                document.getElementById('ad-detail-panel').scrollIntoView({behavior: 'smooth'});
+            },
+            deleteExtReq(reqId) {
+                if(!confirm("요청 내역을 삭제하시겠습니까?")) return;
+                let dbData = DB.getData();
+                dbData.extensionRequests = dbData.extensionRequests.filter(r => r.id !== reqId);
+                DB.setData(dbData); this.render();
+            },
+
+            renderSuggestions() {
+                const dbData = DB.getData();
+                const suggBox = document.getElementById('ad-manage-sugg');
+                suggBox.innerHTML = '';
+                if(!dbData.suggestions || dbData.suggestions.length === 0) {
+                    suggBox.innerHTML = `<div class="flex-1 flex items-center justify-center text-xs text-slate-400">접수된 제안사항이 없습니다.</div>`; return;
+                }
+                dbData.suggestions.slice().reverse().forEach((s, idx) => {
+                    suggBox.innerHTML += `
+                        <div class="p-4 hover:bg-slate-50 transition text-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-slate-800">${s.studentName} <span class="text-xs font-normal text-slate-500">(${s.phone})</span></span>
+                                <span class="text-[10px] text-slate-400">${s.date}</span>
+                            </div>
+                            <p class="text-slate-600 text-xs whitespace-pre-line bg-slate-50 p-3 rounded-lg border border-slate-100">${s.content}</p>
+                            ${s.extra ? `<p class="text-[10px] text-indigo-500 mt-2 font-bold">추가사항: ${s.extra}</p>` : ''}
+                            <div class="mt-2 text-right"><button onclick="adminApp.deleteSuggestion(${idx})" class="text-[10px] font-bold text-red-500 hover:underline">삭제</button></div>
+                        </div>
+                    `;
+                });
+            },
+            deleteSuggestion(reversedIdx) {
+                if(!confirm("이 제안서를 삭제하시겠습니까?")) return;
+                let dbData = DB.getData();
+                const actualIdx = dbData.suggestions.length - 1 - reversedIdx;
+                dbData.suggestions.splice(actualIdx, 1);
+                DB.setData(dbData); this.render();
             },
 
             selectStudent(userId) {
@@ -738,7 +945,7 @@
                 const dbData = DB.getData();
                 const student = dbData.users.find(u => u.id === userId);
                 const panel = document.getElementById('ad-detail-panel');
-                if(!student) { panel.innerHTML = `<div class="text-center py-10 text-slate-400 font-medium">선택한 학생 데이터가 없습니다.</div>`; app.selectedStudentId = null; return; }
+                if(!student) { panel.innerHTML = `<div class="text-center py-20 text-slate-400 font-medium">선택한 학생 데이터가 없습니다.</div>`; app.selectedStudentId = null; return; }
 
                 const admins = dbData.users.filter(u => u.role === 'admin');
                 const teacherOptions = admins.map(a => `<option value="${a.name}" ${student.teacher === a.name ? 'selected' : ''}>${a.name} 선생님</option>`).join('');
@@ -759,23 +966,21 @@
                         else if(!subRecord.checked) subStatusText = `<button onclick="adminApp.approveHomework(${h.id}, '${userId}')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm">🟡 미확인 (클릭 시 검사완료)</button>`;
                         else subStatusText = `<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">🟢 검사 및 채점 완료</span>`;
                         
-                        // 💡 관리자용 제출 파일 뷰어 UI (클릭 시муля레이션)
                         let fileBadge = '';
                         if(subRecord && subRecord.files && subRecord.files.length > 0) {
-                            fileBadge = `<div class="mt-2 space-y-1">` + subRecord.files.map(f => `<button onclick="alert('학생 첨부파일 열기: ${f}')" class="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition inline-block mr-1">📎 ${f}</button>`).join('') + `</div>`;
+                            fileBadge = `<div class="mt-2 flex flex-wrap gap-1">` + subRecord.files.map(f => `<button onclick="app.viewFile('${f}')" class="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition border border-blue-100">📎 ${f}</button>`).join('') + `</div>`;
                         }
-
                         hwListHtml += `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100"><div><p class="text-xs font-bold text-slate-800">[${h.day}] ${h.title}</p>${fileBadge}</div><div class="text-right">${subStatusText}</div></div>`;
                     });
                 }
 
                 panel.innerHTML = `
-                    <div class="border-b border-slate-100 pb-4 flex justify-between items-start"><div><h3 class="text-lg font-black text-slate-900">👨‍🎓 ${student.name} 학생 리포트</h3><p class="text-xs text-slate-400 mt-1">${student.school} ${student.grade} • 현재 누적 점수: <b class="text-indigo-600">${student.xp || 0} XP</b></p></div><span class="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-full">학생 디테일 관리 관찰 중</span></div>
+                    <div class="border-b border-slate-100 pb-4 flex justify-between items-start"><div><h3 class="text-lg font-black text-slate-900">👨‍🎓 ${student.name} 학생 리포트</h3><p class="text-xs text-slate-400 mt-1">${student.school} ${student.grade} • 현재 누적 점수: <b class="text-indigo-600">${student.xp || 0} XP</b></p></div><span class="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-full">상세 관찰 중</span></div>
                     <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 flex items-center justify-between"><span class="text-xs font-bold text-indigo-900">👨‍🏫 담당 선생님 배정</span><div class="flex gap-2"><select id="assign-teacher-select" class="text-xs px-2 py-1.5 border border-indigo-200 rounded-lg outline-none focus:border-indigo-500 bg-white"><option value="">배정 안 됨 (대기중)</option>${teacherOptions}</select><button onclick="adminApp.assignTeacher('${student.id}')" class="bg-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-sm">적용</button></div></div>
                     <div class="bg-rose-50 border border-rose-100 rounded-xl p-3 flex flex-col md:flex-row md:items-center justify-between gap-3"><div><span class="text-xs font-bold text-rose-700 block">🗓️ 수강 만료일 관리 (결제 확인 후 연장)</span><span class="text-[10px] text-rose-500">현재 만료일: ${student.expireDate || '미등록'}</span></div><div class="flex gap-2 shrink-0"><input type="date" id="assign-expire-date" value="${student.expireDate || ''}" class="text-xs px-2 py-1.5 border border-rose-200 rounded-lg outline-none focus:border-rose-500 bg-white"><button onclick="adminApp.updateExpireDate('${student.id}')" class="bg-rose-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg hover:bg-rose-600 transition shadow-sm">연장 적용</button></div></div>
-                    <div class="bg-slate-50 border border-slate-100 rounded-xl p-3"><span class="text-xs font-bold text-slate-700 block mb-2">💬 개별 알림 전송 (학생의 알림 센터로 발송)</span><div class="flex gap-2"><input type="text" id="assign-msg-text" placeholder="메시지를 입력하세요" class="flex-1 text-xs px-3 py-1.5 border border-slate-200 rounded-lg outline-none focus:border-slate-500 bg-white"><button onclick="adminApp.sendPrivateMsg('${student.id}')" class="bg-slate-700 text-white text-xs font-bold px-4 py-1.5 rounded-lg hover:bg-slate-800 transition shadow-sm">전송</button></div></div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4"><h4 class="text-xs font-bold text-slate-500 mb-2">💡 오늘의 필수 미션 진행률</h4><div class="flex items-center gap-3"><div class="w-full bg-slate-200 rounded-full h-2.5"><div class="bg-emerald-500 h-2.5 rounded-full transition-all" style="width: ${missionRate}%"></div></div><span class="text-sm font-black text-emerald-600">${missionRate}%</span></div></div><div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4"><h4 class="text-xs font-bold text-slate-500 mb-2">📚 과제 총 제출 수</h4><p class="text-xl font-black text-slate-800">${mySubs.length} <span class="text-xs text-slate-400 font-medium">/ ${assignedHws.length}건 완료</span></p></div></div>
-                    <div class="space-y-3"><h4 class="text-xs font-bold text-slate-500">✍️ 배포 과제별 제출 여부 및 파일 확인</h4><div class="space-y-2 max-h-48 overflow-y-auto no-scrollbar">${hwListHtml}</div></div>
+                    <div class="bg-slate-50 border border-slate-100 rounded-xl p-3"><span class="text-xs font-bold text-slate-700 block mb-2">💬 개별 알림 전송 (학생 알림 센터로 발송)</span><div class="flex gap-2"><input type="text" id="assign-msg-text" placeholder="메시지를 입력하세요" class="flex-1 text-xs px-3 py-1.5 border border-slate-200 rounded-lg outline-none focus:border-slate-500 bg-white"><button onclick="adminApp.sendPrivateMsg('${student.id}')" class="bg-slate-700 text-white text-xs font-bold px-4 py-1.5 rounded-lg hover:bg-slate-800 transition shadow-sm">전송</button></div></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4"><h4 class="text-xs font-bold text-slate-500 mb-2">💡 미션 진행률</h4><div class="flex items-center gap-3"><div class="w-full bg-slate-200 rounded-full h-2.5"><div class="bg-emerald-500 h-2.5 rounded-full transition-all" style="width: ${missionRate}%"></div></div><span class="text-sm font-black text-emerald-600">${missionRate}%</span></div></div><div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4"><h4 class="text-xs font-bold text-slate-500 mb-2">📚 숙제 제출 수</h4><p class="text-xl font-black text-slate-800">${mySubs.length} <span class="text-xs text-slate-400 font-medium">/ ${assignedHws.length}건 완료</span></p></div></div>
+                    <div class="space-y-3"><h4 class="text-xs font-bold text-slate-500 border-t border-slate-100 pt-3 mt-2">✍️ 숙제 제출 내역 및 채점</h4><div class="space-y-2 max-h-48 overflow-y-auto no-scrollbar">${hwListHtml}</div></div>
                 `;
             },
             updateExpireDate(userId) {
@@ -787,7 +992,7 @@
                     user.expireDate = newDate;
                     DB.setData(dbData);
                     app.addNotification(userId, '수강권 연장 안내', `수강 만료일이 ${newDate} 로 정상 연장되었습니다.`);
-                    alert(`수강 만료일이 ${newDate}로 성공적으로 연장되었습니다. 학생에게 자동 알림이 발송됩니다.`);
+                    alert(`수강 만료일이 ${newDate}로 성공적으로 연장되었습니다.`);
                     this.render();
                 }
             },
@@ -798,7 +1003,6 @@
                 alert("학생에게 개별 알림을 발송했습니다.");
                 document.getElementById('assign-msg-text').value = '';
             },
-
             assignTeacher(studentId) {
                 const selectedTeacherName = document.getElementById('assign-teacher-select').value;
                 let dbData = DB.getData();
@@ -823,7 +1027,6 @@
                 }
             },
 
-            // 자료실 카테고리 관리 기능
             renderMaterialCategories() {
                 const dbData = DB.getData();
                 const cats = dbData.materialCategories || [];
@@ -840,54 +1043,17 @@
                 e.preventDefault();
                 const newCat = document.getElementById('ad-mat-new-cat').value.trim();
                 if(!newCat) return;
-                
                 let dbData = DB.getData();
                 if(!dbData.materialCategories) dbData.materialCategories = [];
                 if(dbData.materialCategories.includes(newCat)) return alert("이미 존재하는 카테고리입니다.");
-                
-                dbData.materialCategories.push(newCat);
-                DB.setData(dbData);
-                document.getElementById('ad-mat-new-cat').value = '';
-                this.renderMaterialCategories();
+                dbData.materialCategories.push(newCat); DB.setData(dbData);
+                document.getElementById('ad-mat-new-cat').value = ''; this.renderMaterialCategories();
             },
             deleteMatCategory(catName) {
                 if(!confirm(`'${catName}' 카테고리를 삭제하시겠습니까? (이 카테고리에 업로드된 자료들은 남습니다.)`)) return;
                 let dbData = DB.getData();
                 dbData.materialCategories = dbData.materialCategories.filter(c => c !== catName);
-                DB.setData(dbData);
-                this.renderMaterialCategories();
-            },
-
-            renderSuggestions() {
-                const dbData = DB.getData();
-                const suggBox = document.getElementById('ad-manage-sugg');
-                suggBox.innerHTML = '';
-                if(!dbData.suggestions || dbData.suggestions.length === 0) {
-                    suggBox.innerHTML = `<p class="p-4 text-xs text-slate-400 text-center">아직 접수된 제안사항이 없습니다.</p>`; return;
-                }
-                
-                dbData.suggestions.slice().reverse().forEach((s, idx) => {
-                    suggBox.innerHTML += `
-                        <div class="p-4 bg-white hover:bg-slate-50 transition border-b border-slate-50 last:border-0 text-sm">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="font-bold text-slate-800">${s.studentName} 학생 <span class="text-xs font-normal text-slate-500">(${s.phone})</span></span>
-                                <span class="text-[10px] text-slate-400">${s.date}</span>
-                            </div>
-                            <p class="text-slate-600 text-xs whitespace-pre-line bg-slate-50 p-3 rounded-lg border border-slate-100">${s.content}</p>
-                            ${s.extra ? `<p class="text-[10px] text-indigo-500 mt-2 font-bold">추가사항: ${s.extra}</p>` : ''}
-                            <div class="mt-2 text-right">
-                                <button onclick="adminApp.deleteSuggestion(${idx})" class="text-[10px] font-bold text-red-500 hover:underline">삭제</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            },
-            deleteSuggestion(reversedIdx) {
-                if(!confirm("이 제안서를 삭제하시겠습니까?")) return;
-                let dbData = DB.getData();
-                const actualIdx = dbData.suggestions.length - 1 - reversedIdx;
-                dbData.suggestions.splice(actualIdx, 1);
-                DB.setData(dbData); this.render();
+                DB.setData(dbData); this.renderMaterialCategories();
             },
 
             renderCMSLists() {
@@ -902,7 +1068,7 @@
                 if(dbData.announcements) {
                     dbData.announcements.forEach(a => {
                         const targetText = a.target === 'all' ? '전체' : '개별';
-                        annBox.innerHTML += `<div class="p-3 bg-white flex justify-between items-center text-xs"><span class="font-bold text-slate-700 truncate max-w-[200px]">[${targetText}] <span class="font-medium text-slate-500">${a.title}</span></span><button onclick="adminApp.deleteContent('ann', ${a.id})" class="text-red-500 hover:underline font-bold shrink-0">삭제</button></div>`;
+                        annBox.innerHTML += `<div class="p-3 bg-white flex justify-between items-center text-xs hover:bg-slate-50"><span class="font-bold text-slate-700 truncate max-w-[200px]">[${targetText}] <span class="font-medium text-slate-500">${a.title}</span></span><button onclick="adminApp.deleteContent('ann', ${a.id})" class="text-red-500 hover:underline font-bold shrink-0">삭제</button></div>`;
                     });
                 }
 
@@ -910,17 +1076,17 @@
                 if(dbData.homeworks.length === 0) hwBox.innerHTML = `<p class="p-4 text-xs text-slate-400 text-center">등록된 숙제가 없습니다.</p>`;
                 dbData.homeworks.forEach(h => {
                     const targetText = h.target === 'all' ? '전체' : '개별';
-                    hwBox.innerHTML += `<div class="p-3 bg-white flex justify-between items-center text-xs"><span class="font-bold text-slate-700 truncate max-w-[200px]">[${h.day}] [${targetText}] <span class="font-medium text-slate-500">${h.title || '공백'}</span></span><button onclick="adminApp.deleteContent('hw', ${h.id})" class="text-red-500 hover:underline font-bold shrink-0">삭제</button></div>`;
+                    hwBox.innerHTML += `<div class="p-3 bg-white flex justify-between items-center text-xs hover:bg-slate-50"><span class="font-bold text-slate-700 truncate max-w-[200px]">[${h.day}] [${targetText}] <span class="font-medium text-slate-500">${h.title || '공백'}</span></span><button onclick="adminApp.deleteContent('hw', ${h.id})" class="text-red-500 hover:underline font-bold shrink-0">삭제</button></div>`;
                 });
 
                 lecBox.innerHTML = '';
                 if(dbData.lectures.length === 0) lecBox.innerHTML = `<p class="p-4 text-xs text-slate-400 text-center">등록된 강의가 없습니다.</p>`;
-                dbData.lectures.forEach(l => { lecBox.innerHTML += `<div class="p-3 bg-white flex justify-between items-center text-xs"><span class="font-bold text-slate-700 truncate max-w-[200px]">${l.type} ${l.title}</span><button onclick="adminApp.deleteContent('lec', ${l.id})" class="text-red-500 hover:underline font-bold shrink-0">삭제</button></div>`; });
+                dbData.lectures.forEach(l => { lecBox.innerHTML += `<div class="p-3 bg-white flex justify-between items-center text-xs hover:bg-slate-50"><span class="font-bold text-slate-700 truncate max-w-[200px]">${l.type} ${l.title}</span><button onclick="adminApp.deleteContent('lec', ${l.id})" class="text-red-500 hover:underline font-bold shrink-0">삭제</button></div>`; });
 
                 matBox.innerHTML = '';
                 if(!dbData.materials || dbData.materials.length === 0) matBox.innerHTML = `<p class="p-4 text-xs text-slate-400 text-center">등록된 자료가 없습니다.</p>`;
                 if(dbData.materials) {
-                    dbData.materials.forEach(m => { matBox.innerHTML += `<div class="p-3 bg-white flex justify-between items-center text-xs"><span class="font-bold text-slate-700 truncate max-w-[200px]">[${m.category}] ${m.title}</span><button onclick="adminApp.deleteContent('mat', ${m.id})" class="text-red-500 hover:underline font-bold shrink-0">삭제</button></div>`; });
+                    dbData.materials.forEach(m => { matBox.innerHTML += `<div class="p-3 bg-white flex justify-between items-center text-xs hover:bg-slate-50"><span class="font-bold text-slate-700 truncate max-w-[200px]">[${m.category}] ${m.title}</span><button onclick="adminApp.deleteContent('mat', ${m.id})" class="text-red-500 hover:underline font-bold shrink-0">삭제</button></div>`; });
                 }
             },
 
@@ -940,19 +1106,14 @@
                 const target = document.getElementById('ad-ann-target').value;
                 const title = document.getElementById('ad-ann-title').value;
                 if(!dbData.announcements) dbData.announcements = []; 
-                dbData.announcements.unshift({ 
-                    id: Date.now(), target, title, content: document.getElementById('ad-ann-content').value, date: new Date().toLocaleDateString()
-                });
-                DB.setData(dbData); 
-                app.addNotification(target, '새 공지사항 등록', `[공지] ${title} 내용이 등록되었습니다. 홈 화면에서 확인하세요.`);
-                alert("공지사항이 배포되었으며, 대상 학생들에게 알림이 발송되었습니다."); 
-                e.target.reset(); this.render();
+                dbData.announcements.unshift({ id: Date.now(), target, title, content: document.getElementById('ad-ann-content').value, date: new Date().toLocaleDateString() });
+                DB.setData(dbData); app.addNotification(target, '새 공지사항 등록', `[공지] ${title} 내용이 등록되었습니다. 홈 화면에서 확인하세요.`);
+                alert("공지사항이 배포되었습니다."); e.target.reset(); this.render();
             },
             addMaterial(e) {
                 e.preventDefault();
                 const fileInput = document.getElementById('ad-mat-file');
                 if(!fileInput.files.length) return alert("자료 파일을 선택해주세요.");
-                
                 let dbData = DB.getData();
                 if(!dbData.materials) dbData.materials = [];
                 dbData.materials.push({
@@ -960,42 +1121,32 @@
                     title: document.getElementById('ad-mat-title').value,
                     fileName: fileInput.files[0].name, date: new Date().toLocaleDateString()
                 });
-                DB.setData(dbData); alert("자료가 학생들의 자료실 탭에 안전하게 업로드되었습니다."); e.target.reset(); this.render();
+                DB.setData(dbData); alert("자료가 안전하게 업로드되었습니다."); e.target.reset(); this.render();
             },
             updateConfig(e) {
                 e.preventDefault();
                 let dbData = DB.getData();
                 dbData.config.week = document.getElementById('ad-conf-week').value;
                 dbData.config.title = document.getElementById('ad-conf-title').value;
-                dbData.config.dday = document.getElementById('ad-conf-dday').value;
-                DB.setData(dbData); alert("기본 정보가 실시간 수정되었습니다."); this.render();
+                DB.setData(dbData); alert("기본 정보가 수정되었습니다."); this.render();
             },
             addLecture(e) {
                 e.preventDefault();
                 let dbData = DB.getData();
-                dbData.lectures.push({ 
-                    id: Date.now(), type: document.getElementById('ad-lec-type').value, 
-                    title: document.getElementById('ad-lec-title').value, link: document.getElementById('ad-lec-link').value, 
-                    desc: document.getElementById('ad-lec-desc').value 
-                });
-                DB.setData(dbData); alert("강의 영상/링크가 배포되었습니다."); e.target.reset(); this.render();
+                dbData.lectures.push({ id: Date.now(), type: document.getElementById('ad-lec-type').value, title: document.getElementById('ad-lec-title').value, link: document.getElementById('ad-lec-link').value, desc: document.getElementById('ad-lec-desc').value });
+                DB.setData(dbData); alert("강의가 배포되었습니다."); e.target.reset(); this.render();
             },
             addHomework(e) {
                 e.preventDefault();
                 let dbData = DB.getData();
                 const target = document.getElementById('ad-hw-target').value;
                 const title = document.getElementById('ad-hw-title').value;
-                dbData.homeworks.push({ 
-                    id: Date.now(), target, day: document.getElementById('ad-hw-day').value, date: document.getElementById('ad-hw-date').value, 
-                    title, status: 'pending' 
-                });
-                DB.setData(dbData); 
-                app.addNotification(target, '새로운 과제 등록', `[${title}] 과제가 새롭게 배포되었습니다.`);
-                alert("과제가 배포되었습니다."); 
-                e.target.reset(); this.render();
+                dbData.homeworks.push({ id: Date.now(), target, day: document.getElementById('ad-hw-day').value, date: document.getElementById('ad-hw-date').value, title, status: 'pending' });
+                DB.setData(dbData); app.addNotification(target, '새로운 과제 등록', `[${title}] 과제가 새롭게 배포되었습니다.`);
+                alert("과제가 배포되었습니다."); e.target.reset(); this.render();
             },
             deleteUser(id) {
-                if(confirm("이 학생 데이터를 완전히 지우시겠습니까? 연관된 모든 학습 데이터 및 제출 기록이 초기화됩니다.")) {
+                if(confirm("이 학생 데이터를 완전히 지우시겠습니까? 연관된 모든 데이터가 초기화됩니다.")) {
                     let dbData = DB.getData();
                     dbData.users = dbData.users.filter(u => u.id !== id);
                     delete dbData.missions[id];
@@ -1010,32 +1161,25 @@
                 const blob = new Blob([dataStr], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = `studycampus_backup_${new Date().toISOString().slice(0,10)}.json`;
-                a.click();
+                a.href = url; a.download = `studycampus_backup_${new Date().toISOString().slice(0,10)}.json`; a.click();
             },
             importData() {
                 const fileInput = document.getElementById('import-file');
                 if (!fileInput.files.length) return alert("백업 파일을 선택해주세요.");
-                const file = fileInput.files[0];
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     try {
                         const importedData = JSON.parse(e.target.result);
                         if(importedData && importedData.users) {
-                            DB.setData(importedData);
-                            alert("데이터 복구가 완료되었습니다! 페이지를 새로고침합니다.");
-                            location.reload();
-                        } else alert("올바른 백업 파일이 아닙니다.");
-                    } catch(err) { alert("파일을 읽는 중 오류가 발생했습니다."); }
+                            DB.setData(importedData); alert("복구가 완료되었습니다! 페이지를 새로고침합니다."); location.reload();
+                        } else alert("올바른 파일이 아닙니다.");
+                    } catch(err) { alert("오류가 발생했습니다."); }
                 };
-                reader.readAsText(file);
+                reader.readAsText(fileInput.files[0]);
             }
         };
 
-        // iPhone 하단 여백 보정
         document.head.insertAdjacentHTML("beforeend", `<style>.pb-safe { padding-bottom: env(safe-area-inset-bottom); }</style>`);
-        
         app.init();
     </script>
 </body>
