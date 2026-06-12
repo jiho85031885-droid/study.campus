@@ -23,10 +23,6 @@
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .circle-check { appearance: none; width: 1.5rem; height: 1.5rem; border: 2px solid #cbd5e1; border-radius: 50%; cursor: pointer; transition: all 0.2s; position: relative; }
-        .circle-check:checked { background-color: #10b981; border-color: #10b981; }
-        .circle-check:checked::after { content: ''; position: absolute; left: 8px; top: 4px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
     </style>
 </head>
 <body class="flex flex-col min-h-screen relative w-full">
@@ -44,21 +40,18 @@
         </div>
     </div>
 
-    <div id="file-viewer-modal" class="hidden fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
-        <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl scale-95 transition-transform" id="file-viewer-content">
-            <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h3 class="font-bold text-slate-800 flex items-center gap-2">🖼️ <span id="fv-title" class="truncate max-w-[200px] md:max-w-md">파일명</span></h3>
+    <div id="file-viewer-modal" class="hidden fixed inset-0 z-[110] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
+        <div class="bg-white w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl scale-95 transition-transform flex flex-col max-h-[90vh]" id="file-viewer-content">
+            <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2">첨부파일 확인: <span id="fv-title" class="text-indigo-600 truncate max-w-[200px] md:max-w-md">파일명</span></h3>
                 <button onclick="app.closeFileViewer()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">✕</button>
             </div>
-            <div class="p-10 bg-slate-100 flex flex-col items-center justify-center min-h-[300px]">
-                <span class="text-6xl mb-4">📄</span>
-                <p class="text-slate-500 text-sm font-medium text-center">프론트엔드 환경이므로<br>실제 파일 렌더링은 시뮬레이션 됩니다.</p>
-                <div class="mt-4 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
-                    <p class="text-indigo-600 font-bold text-sm" id="fv-filename"></p>
+            
+            <div class="p-6 bg-slate-100 flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-[300px]" id="fv-dynamic-content">
                 </div>
-            </div>
-            <div class="p-4 bg-white text-right">
-                <button onclick="app.closeFileViewer()" class="bg-slate-800 hover:bg-slate-900 transition text-white px-6 py-2 rounded-xl font-bold text-sm">닫기</button>
+            
+            <div class="p-4 bg-white text-right border-t border-slate-100 shrink-0">
+                <button onclick="app.closeFileViewer()" class="bg-slate-800 hover:bg-slate-900 transition text-white px-6 py-2.5 rounded-xl font-bold text-sm">닫기</button>
             </div>
         </div>
     </div>
@@ -66,6 +59,7 @@
     <div id="auth-view" class="fixed inset-0 bg-[#f4f6f8] z-50 flex items-center justify-center fade-in px-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8">
             <div class="text-center mb-10"><h1 class="font-logo text-5xl text-[#1a365d] mb-1">studycampus</h1><p id="auth-subtitle" class="text-slate-400 text-sm font-medium">계정에 로그인하세요</p></div>
+
             <form id="login-form" onsubmit="app.login(event)" class="space-y-4">
                 <div><input type="text" id="login-id" placeholder="아이디 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 transition"></div>
                 <div><input type="password" id="login-pw" placeholder="비밀번호 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 transition"></div>
@@ -76,25 +70,26 @@
             </form>
 
             <form id="signup-form" onsubmit="app.signup(event)" class="space-y-4 hidden h-[450px] overflow-y-auto no-scrollbar pb-10 px-1">
-                <div><label class="block text-xs font-bold text-slate-500 mb-1">이름</label><input type="text" id="reg-name" placeholder="실명 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
-                <div><label class="block text-xs font-bold text-slate-500 mb-1">아이디</label><input type="text" id="reg-id" placeholder="로그인에 사용할 아이디" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
-                <div><label class="block text-xs font-bold text-slate-500 mb-1">전화번호</label><input type="text" id="reg-phone" placeholder="010-0000-0000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">이름</label><input type="text" id="reg-name" placeholder="실명 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">아이디</label><input type="text" id="reg-id" placeholder="로그인에 사용할 아이디" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">전화번호</label><input type="text" id="reg-phone" placeholder="010-0000-0000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
                 <div class="flex gap-2">
-                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">비밀번호</label><input type="password" id="reg-pw" placeholder="4자 이상" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
-                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">비밀번호 확인</label><input type="password" id="reg-pw-check" placeholder="다시 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
+                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">비밀번호</label><input type="password" id="reg-pw" placeholder="4자 이상" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
+                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">비밀번호 확인</label><input type="password" id="reg-pw-check" placeholder="다시 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
                 </div>
                 <div class="flex gap-2">
-                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">학교</label><input type="text" id="reg-school" placeholder="학교명" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
+                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">학교</label><input type="text" id="reg-school" placeholder="학교명" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
                     <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">학년</label>
-                        <select id="reg-grade" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3">
+                        <select id="reg-grade" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
                             <option value="중1">중1</option><option value="중2">중2</option><option value="중3">중3</option>
                             <option value="고1">고1</option><option value="고2" selected>고2</option><option value="고3">고3</option><option value="N수">N수</option>
                             <option value="대학교 1학년">대학교 1학년</option><option value="대학교 2학년">대학교 2학년</option><option value="대학교 3학년">대학교 3학년</option><option value="대학교 4학년">대학교 4학년</option>
                         </select>
                     </div>
                 </div>
-                <div><label class="block text-xs font-bold text-slate-500 mb-1">학부모 전화번호</label><input type="text" id="reg-parent" placeholder="010-0000-0000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
-                <div><label class="block text-xs font-bold text-slate-500 mb-1">생년월일</label><input type="date" id="reg-birth" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-500"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">학부모 전화번호</label><input type="text" id="reg-parent" placeholder="010-0000-0000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">생년월일</label><input type="date" id="reg-birth" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-slate-500"></div>
+                
                 <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition mt-6 shadow-md text-lg">가입 완료</button>
                 <div class="text-center mt-4 text-xs"><button type="button" onclick="authUI.toggleMode('login')" class="text-slate-500 font-bold hover:underline">← 로그인으로 돌아가기</button></div>
             </form>
@@ -127,7 +122,7 @@
                         <div class="absolute right-0 top-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
                         <div class="flex justify-between items-start mb-8 relative z-10">
                             <div>
-                                <p class="text-blue-100 text-xs font-bold mb-2 opacity-90 tracking-widest uppercase" id="st-week">WEEK</p>
+                                <p class="text-blue-100 text-xs font-bold mb-2 opacity-90 tracking-widest uppercase auto-week-text">WEEK</p>
                                 <h2 class="text-3xl font-black leading-tight" id="st-greeting-name">학생님,<br>오늘도 파이팅!</h2>
                                 <p class="text-blue-100 text-sm mt-3" id="st-greeting-info">학생 • 배정 대기중</p>
                             </div>
@@ -138,17 +133,11 @@
                             <div class="flex-1 bg-white/10 rounded-2xl p-4 backdrop-blur-md border border-white/20 flex items-center gap-4"><span class="text-3xl">💎</span><div><div class="font-black text-xl leading-none" id="st-xp">0 XP</div><div class="text-xs text-blue-100 mt-1">Lv.1 초심자</div></div></div>
                         </div>
                     </div>
-
-                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white"><h3 class="font-black text-slate-900 text-lg">수업 안내 (다시보기)</h3><span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">완료시 XP</span></div>
-                        <ul id="st-mission-list" class="divide-y divide-slate-50 bg-white"></ul>
-                        <div class="p-6 bg-white border-t border-slate-50"><button onclick="studentApp.completeAllMissions()" class="w-full bg-[#10b981] hover:bg-[#059669] transition text-white font-bold py-4 rounded-xl shadow-md text-base">모두 완료! 수업 시작하기</button></div>
-                    </div>
                 </div>
 
                 <div id="tab-homework" class="tab-content hidden fade-in space-y-6">
                     <div class="bg-[#4176ff] rounded-3xl p-8 text-center text-white shadow-md">
-                        <h2 class="text-3xl font-black"><span id="st-hw-week">WEEK</span> <span class="bg-white/20 text-xs px-3 py-1 rounded-full ml-2 align-middle">이번 주</span></h2>
+                        <h2 class="text-3xl font-black"><span class="auto-week-text">WEEK</span> <span class="bg-white/20 text-xs px-3 py-1 rounded-full ml-2 align-middle">이번 주</span></h2>
                         <p class="text-sm text-blue-100 mt-3" id="st-hw-title">과정명</p>
                     </div>
                     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden" id="st-hw-container"></div>
@@ -173,17 +162,19 @@
                                 <span id="st-dday" class="text-lg">수강권 마감 D-DAY</span>
                             </div>
                         </div>
-                        <button onclick="studentApp.reqExtension()" class="w-full md:w-auto bg-red-500 hover:bg-red-600 transition text-white text-xs font-bold px-6 py-3.5 rounded-xl shadow-sm">수강 연장 확인하기</button>
                     </div>
 
                     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 border-t-4 border-t-indigo-600">
                         <h3 class="font-bold text-slate-800 mb-3">💳 수강 신청 입금 처리 요청하기</h3>
-                        <p class="text-xs text-slate-500 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">입금 계좌: [하나은행] 342-910508-31507 (예금주: 이*호)</p>
+                        <p class="text-xs text-slate-600 leading-relaxed mb-4 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                            수강을 연장하시려면 studycampus 계좌로 입금 후 '수강 신청 입금 처리 요청하기'에 말씀해주세요.<br><br>
+                            <span class="font-bold text-indigo-700">🏦 입금 계좌: [하나은행] 342-910508-31507 (예금주: 이*호)</span>
+                        </p>
                         <form onsubmit="studentApp.sendExtRequest(event)" class="space-y-3">
                             <div><label class="block text-xs font-bold text-slate-500 mb-1">학생명</label><input type="text" id="ext-req-name" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500 bg-white"></div>
                             <div><label class="block text-xs font-bold text-slate-500 mb-1">전화번호</label><input type="text" id="ext-req-phone" required class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500 bg-white"></div>
                             <div><label class="block text-xs font-bold text-slate-500 mb-1">증명 첨부사진 (입금 캡처 등)</label><input type="file" id="ext-req-file" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"></div>
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 transition text-white font-bold py-3.5 rounded-xl text-sm shadow-sm mt-2">요청하기</button>
+                            <button id="btn-ext-req" type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 transition text-white font-bold py-3.5 rounded-xl text-sm shadow-sm mt-2">요청하기</button>
                         </form>
                     </div>
 
@@ -237,9 +228,9 @@
         </header>
 
         <div class="bg-white border-b border-slate-200 sticky top-16 z-30 shadow-sm shrink-0">
-            <div class="max-w-6xl mx-auto flex gap-6 px-4">
-                <button onclick="adminApp.switchTab('students')" id="ad-tab-btn-students" class="py-3.5 text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition">👨‍🎓 학생/요청 관리</button>
-                <button onclick="adminApp.switchTab('contents')" id="ad-tab-btn-contents" class="py-3.5 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">🖥️ 홈페이지(콘텐츠) 편집</button>
+            <div class="max-w-6xl mx-auto flex gap-6 px-4 overflow-x-auto no-scrollbar">
+                <button onclick="adminApp.switchTab('students')" id="ad-tab-btn-students" class="py-3.5 text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition whitespace-nowrap">👨‍🎓 학생/요청 관리</button>
+                <button onclick="adminApp.switchTab('contents')" id="ad-tab-btn-contents" class="py-3.5 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition whitespace-nowrap">🖥️ 홈페이지(콘텐츠) 편집</button>
             </div>
         </div>
 
@@ -297,9 +288,12 @@
                             <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-3 flex items-center gap-2">🏠 공통 / 홈 화면 배너 관리</h2>
                             
                             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4">
-                                <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-2">⚙️ 기본 배너 설정</h3>
+                                <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-2">⚙️ 자동 주차(WEEK) & 기본 설정</h3>
                                 <form onsubmit="adminApp.updateConfig(event)" class="space-y-3">
-                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">현재 주차 (Week)</label><input type="text" id="ad-conf-week" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 mb-1">1주차 시작일 <span class="font-normal text-blue-500">(일요일마다 주차 자동 갱신)</span></label>
+                                        <input type="date" id="ad-conf-startdate" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none text-slate-700">
+                                    </div>
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1">코스 이름 (타이틀)</label><input type="text" id="ad-conf-title" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
                                     <button type="submit" class="w-full bg-[#1a365d] text-white font-bold py-3 rounded-xl hover:bg-blue-900 transition text-sm">저장</button>
                                 </form>
@@ -378,7 +372,7 @@
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1">카테고리 선택</label><select id="ad-mat-cat" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 bg-white outline-none"></select></div>
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1">자료 제목</label><input type="text" id="ad-mat-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 outline-none"></div>
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1">파일 첨부</label><input type="file" id="ad-mat-file" required class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-emerald-50 file:text-emerald-700 cursor-pointer"></div>
-                                    <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-sm text-sm">업로드</button>
+                                    <button id="btn-mat-submit" type="submit" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-sm text-sm">업로드</button>
                                 </form>
                             </div>
 
@@ -410,15 +404,42 @@
     <script>
         const DB_KEY = 'studycampus_permanent_db'; 
         
+        // 💡 [핵심] 파일을 Base64 문자열로 변환하고 리사이즈하는 헬퍼 함수
+        const processFileBase64 = (file) => {
+            return new Promise((resolve) => {
+                if(!file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve({name: file.name, type: file.type, data: e.target.result});
+                    reader.readAsDataURL(file);
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 1000;
+                        let scaleSize = 1;
+                        if(img.width > MAX_WIDTH) scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = img.width * scaleSize;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve({name: file.name, type: file.type, data: canvas.toDataURL('image/jpeg', 0.6)});
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
         const DB = {
             init() {
                 let dataStr = localStorage.getItem(DB_KEY);
                 if (!dataStr) {
                     const initialData = {
-                        users: [
-                            { id: 'ijiho853', phone: '01048670953', pw: '0909791hrd*', name: '이지호', role: 'admin', school: '관리자', grade: '선생님' }
-                        ],
-                        config: { week: 'WEEK 6', title: '기출제로원', dday: 'D-2' },
+                        users: [{ id: 'ijiho853', phone: '01048670953', pw: '0909791hrd*', name: '이지호', role: 'admin', school: '관리자', grade: '선생님' }],
+                        config: { startDate: '2024-01-01', title: '기출제로원', dday: 'D-2' }, // week 대신 startDate
                         missions: {}, announcements: [], homeworks: [], lectures: [], materials: [], subs: [], notifications: [], suggestions: [],
                         extensionRequests: [], materialCategories: ['공지', '주교재', '숙제제출예시', '기타자료']
                     };
@@ -426,6 +447,7 @@
                 } else {
                     let parsedData = JSON.parse(dataStr);
                     let needsUpdate = false;
+                    if(!parsedData.config.startDate) { parsedData.config.startDate = new Date().toISOString().slice(0,10); needsUpdate = true; }
                     if(!parsedData.notifications) { parsedData.notifications = []; needsUpdate = true; }
                     if(!parsedData.suggestions) { parsedData.suggestions = []; needsUpdate = true; }
                     if(!parsedData.extensionRequests) { parsedData.extensionRequests = []; needsUpdate = true; }
@@ -460,10 +482,54 @@
             selectedStudentId: null,
             init() { DB.init(); this.route(); },
             
-            viewFile(fileName) {
-                document.getElementById('fv-title').textContent = fileName;
-                document.getElementById('fv-filename').textContent = fileName;
+            // 💡 1주차 기준일로 주차(Week) 자동 계산 함수
+            getAutoWeek() {
+                const dbData = DB.getData();
+                if (!dbData.config.startDate) return "WEEK 1";
+                const start = new Date(dbData.config.startDate);
+                start.setDate(start.getDate() - start.getDay()); // 해당 주의 일요일로 맞춤
+                start.setHours(0,0,0,0);
+                const now = new Date();
+                now.setHours(0,0,0,0);
+                const diffTime = now.getTime() - start.getTime();
+                const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7)) + 1;
+                return diffWeeks > 0 ? `WEEK ${diffWeeks}` : "WEEK 1";
+            },
+
+            // 💡 파일(이미지) 실제 데이터 뷰어 연동
+            viewFile(sourceType, id1, index) {
+                const dbData = DB.getData();
+                let fileObj = null;
+
+                if(sourceType === 'hw') {
+                    const [userId, hwId] = id1.split('_');
+                    const sub = dbData.subs.find(s => s.userId === userId && s.hwId == hwId);
+                    if(sub && sub.files) fileObj = sub.files[index];
+                } else if(sourceType === 'ext') {
+                    const req = dbData.extensionRequests.find(r => r.id == id1);
+                    if(req) fileObj = req.proofFile;
+                } else if(sourceType === 'mat') {
+                    const mat = dbData.materials.find(m => m.id == id1);
+                    if(mat) fileObj = mat.fileObj;
+                }
+
                 const modal = document.getElementById('file-viewer-modal');
+                const contentContainer = document.getElementById('fv-dynamic-content');
+
+                // 과거 문자열 데이터(시뮬레이션 모드) 혹은 파일 미존재
+                if(!fileObj || typeof fileObj === 'string') {
+                    const name = typeof fileObj === 'string' ? fileObj : '알 수 없는 파일';
+                    document.getElementById('fv-title').textContent = name;
+                    contentContainer.innerHTML = `<span class="text-6xl mb-4">📄</span><p class="text-slate-500 text-sm font-medium text-center">과거 데이터이거나 텍스트입니다.<br>(프론트엔드 시뮬레이션 모드)</p><div class="mt-4 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200"><p class="text-indigo-600 font-bold text-sm">${name}</p></div>`;
+                } else {
+                    document.getElementById('fv-title').textContent = fileObj.name;
+                    if(fileObj.type.startsWith('image/')) {
+                        contentContainer.innerHTML = `<img src="${fileObj.data}" class="max-h-full object-contain rounded-lg shadow-sm">`;
+                    } else {
+                        contentContainer.innerHTML = `<span class="text-6xl mb-4">📄</span><p class="text-slate-500 text-sm font-medium text-center mb-4">이미지 외의 문서/파일입니다.<br>아래 버튼을 눌러 다운로드하세요.</p><a href="${fileObj.data}" download="${fileObj.name}" class="bg-indigo-600 hover:bg-indigo-700 transition text-white px-8 py-3 rounded-xl font-bold shadow-md">📥 파일 다운로드</a>`;
+                    }
+                }
+                
                 modal.classList.remove('hidden');
                 setTimeout(() => modal.querySelector('#file-viewer-content').classList.remove('scale-95'), 10);
             },
@@ -532,7 +598,6 @@
                     school: document.getElementById('reg-school').value, grade: document.getElementById('reg-grade').value,
                     teacher: '', expireDate: '' 
                 };
-                
                 dbData.missions[id] = [false, false, false];
                 dbData.users.push(newUser);
                 DB.setData(dbData);
@@ -604,8 +669,9 @@
                     else ddayTextEl.innerHTML = `수강권 만료됨 <span class="text-xs text-red-400 font-medium">(결제 필요)</span>`;
                 } else { ddayTextEl.innerHTML = `수강권 미등록 <span class="text-xs text-red-400 font-medium">(결제 필요)</span>`; }
 
-                document.getElementById('st-week').textContent = dbData.config.week;
-                document.getElementById('st-hw-week').textContent = dbData.config.week;
+                // 자동 주차 적용
+                const currentWeek = app.getAutoWeek();
+                document.querySelectorAll('.auto-week-text').forEach(el => el.textContent = currentWeek);
                 document.getElementById('st-hw-title').textContent = dbData.config.title;
                 document.getElementById('st-lec-title').textContent = dbData.config.title;
 
@@ -614,7 +680,6 @@
 
                 this.updateXP(0); 
                 this.renderAnnouncements(); 
-                this.renderMissions();
                 this.renderHomeworks();
                 this.renderLectures();
                 this.renderMaterials();
@@ -622,21 +687,36 @@
             },
 
             reqExtension() { alert("수강을 연장하시려면 studycampus 계좌로 입금 후 '수강 신청 입금 처리 요청하기'에 말씀해주세요.\n\n🏦 입금 계좌: [하나은행] 342-910508-31507 (예금주: 이*호)"); },
-            sendExtRequest(e) {
+            async sendExtRequest(e) {
                 e.preventDefault();
+                const btn = document.getElementById('btn-ext-req');
+                btn.textContent = "첨부파일 변환 및 업로드 중...";
+                btn.disabled = true;
+
                 const fileInput = document.getElementById('ext-req-file');
-                const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : '';
+                let fileObj = null;
+                if(fileInput.files.length > 0) {
+                    fileObj = await processFileBase64(fileInput.files[0]);
+                }
                 
                 let dbData = DB.getData();
                 dbData.extensionRequests.push({
                     id: Date.now(), userId: this.currentUser.id,
                     name: document.getElementById('ext-req-name').value, phone: document.getElementById('ext-req-phone').value,
-                    proofFile: fileName, date: new Date().toLocaleString()
+                    proofFile: fileObj, date: new Date().toLocaleString()
                 });
-                DB.setData(dbData);
-                app.addNotification('admin', '수강 연장 결제 확인 요청', `${this.currentUser.name} 학생의 입금 확인 요청이 접수되었습니다.`);
-                alert("입금 확인 요청이 선생님께 성공적으로 전송되었습니다.");
-                e.target.reset();
+                
+                try {
+                    DB.setData(dbData);
+                    app.addNotification('admin', '수강 연장 결제 확인 요청', `${this.currentUser.name} 학생의 입금 확인 요청이 접수되었습니다.`);
+                    alert("입금 확인 요청이 선생님께 성공적으로 전송되었습니다.");
+                    e.target.reset();
+                } catch(err) {
+                    alert("로컬 스토리지 저장 용량이 초과되었습니다. 이미지 크기를 줄이거나 캐시를 비워주세요.");
+                } finally {
+                    btn.textContent = "요청하기";
+                    btn.disabled = false;
+                }
             },
 
             updateXP(amount) {
@@ -655,53 +735,47 @@
                     container.innerHTML = `<div class="bg-indigo-600 text-white rounded-[20px] p-6 shadow-md relative overflow-hidden mb-6 bounce-in"><div class="absolute right-0 top-0 opacity-10 text-8xl -mt-4 -mr-4">📢</div><div class="relative z-10"><span class="bg-indigo-800 text-indigo-100 text-[10px] font-bold px-2.5 py-1 rounded mb-3 inline-block tracking-wider">선생님 알림</span><h3 class="font-black text-xl leading-tight mb-2">${latest.title}</h3><p class="text-indigo-100 text-sm mb-4 leading-relaxed whitespace-pre-line">${latest.content}</p><p class="text-indigo-300 text-xs font-bold">${latest.date}</p></div></div>`;
                 }
             },
-            toggleMission(idx) {
-                let dbData = DB.getData();
-                if(!dbData.missions[this.currentUser.id]) dbData.missions[this.currentUser.id] = [false, false, false];
-                let myMissions = dbData.missions[this.currentUser.id];
-                myMissions[idx] = !myMissions[idx];
-                dbData.missions[this.currentUser.id] = myMissions;
-                DB.setData(dbData);
-                if(myMissions[idx]) this.updateXP(10); else this.updateXP(-10);
-                this.renderMissions();
-            },
-            completeAllMissions() {
-                let dbData = DB.getData();
-                if(!dbData.missions[this.currentUser.id]) dbData.missions[this.currentUser.id] = [false, false, false];
-                let myMissions = dbData.missions[this.currentUser.id];
-                let changed = false;
-                for(let i=0; i<myMissions.length; i++) { if(!myMissions[i]) { myMissions[i] = true; this.updateXP(10); changed = true; } }
-                if(changed) { dbData.missions[this.currentUser.id] = myMissions; DB.setData(dbData); this.renderMissions(); alert("모든 미션을 완료했습니다! (+XP)"); } 
-                else alert("이미 모두 완료하셨습니다.");
-            },
-            renderMissions() {
-                let dbData = DB.getData();
-                let myMissions = dbData.missions[this.currentUser.id] || [false, false, false];
-                const texts = ["줌 입장 링크 확인 (매주 목 저녁 8시)", "주교재 다운로드 (자료실)", "숙제 제출 방법 확인"];
-                const list = document.getElementById('st-mission-list');
-                list.innerHTML = '';
-                texts.forEach((text, i) => {
-                    const isDone = myMissions[i];
-                    list.innerHTML += `<li class="flex items-center gap-4 p-5 hover:bg-slate-50 transition cursor-pointer" onclick="studentApp.toggleMission(${i})"><input type="checkbox" ${isDone ? 'checked' : ''} class="circle-check shrink-0 pointer-events-none"><span class="text-sm font-bold ${isDone ? 'text-slate-400 line-through' : 'text-slate-700'}">${text}</span></li>`;
-                });
-            },
-            submitHW(hwId) {
+
+            async submitHW(hwId) {
                 const fileInput = document.getElementById(`hw-files-${hwId}`);
-                const files = fileInput ? fileInput.files : [];
-                if(files.length === 0) { if(!confirm("첨부된 파일이 없습니다. 이대로 제출하시겠습니까?")) return; }
-                const fileNames = Array.from(files).map(f => f.name);
+                if(fileInput.files.length === 0) { if(!confirm("첨부된 파일이 없습니다. 이대로 제출하시겠습니까?")) return; }
+                
+                // 버튼 상태 변경
+                const btn = event.target;
+                btn.textContent = "파일 변환 및 업로드 중...";
+                btn.disabled = true;
+
+                // 모든 첨부파일 Base64 인코딩
+                let fileObjs = [];
+                for(let i=0; i<fileInput.files.length; i++) {
+                    const obj = await processFileBase64(fileInput.files[i]);
+                    fileObjs.push(obj);
+                }
 
                 if(confirm("이 과제를 제출하시겠습니까?")) {
                     let dbData = DB.getData();
-                    if(dbData.subs.find(s => s.hwId === hwId && s.userId === this.currentUser.id)) return alert('이미 제출된 숙제입니다.');
+                    if(dbData.subs.find(s => s.hwId === hwId && s.userId === this.currentUser.id)) {
+                        alert('이미 제출된 숙제입니다.');
+                        btn.textContent = "과제 제출하기"; btn.disabled = false;
+                        return;
+                    }
                     
-                    dbData.subs.push({ hwId: hwId, userId: this.currentUser.id, date: new Date().toLocaleDateString(), checked: false, files: fileNames });
-                    DB.setData(dbData);
-                    this.updateXP(50);
-                    const hwTitle = dbData.homeworks.find(h=>h.id === hwId).title;
-                    app.addNotification('admin', '과제 제출 알림', `${this.currentUser.name} 학생이 [${hwTitle}] 과제를 제출했습니다.`);
-                    alert("숙제 제출 완료! 선생님의 검사를 대기합니다. (+50XP)");
-                    this.renderHomeworks();
+                    dbData.subs.push({ hwId: hwId, userId: this.currentUser.id, date: new Date().toLocaleDateString(), checked: false, files: fileObjs });
+                    
+                    try {
+                        DB.setData(dbData);
+                        this.updateXP(50);
+                        const hwTitle = dbData.homeworks.find(h=>h.id === hwId).title;
+                        app.addNotification('admin', '과제 제출 알림', `${this.currentUser.name} 학생이 [${hwTitle}] 과제를 제출했습니다.`);
+                        alert("숙제 제출 완료! 선생님의 검사를 대기합니다. (+50XP)");
+                        this.renderHomeworks();
+                    } catch(e) {
+                        alert("파일 용량이 너무 커서 저장할 수 없습니다 (로컬 환경 한계). 파일 크기를 줄여주세요.");
+                    } finally {
+                        btn.textContent = "과제 제출하기"; btn.disabled = false;
+                    }
+                } else {
+                    btn.textContent = "과제 제출하기"; btn.disabled = false;
                 }
             },
             renderHomeworks() {
@@ -717,10 +791,15 @@
                     if(submission) {
                         const statusText = submission.checked ? '✅ 채점 완료(통과)' : '확인 대기중';
                         const statusClass = submission.checked ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600';
+                        
                         let filesHtml = '';
                         if(submission.files && submission.files.length > 0) {
-                            filesHtml = `<div class="mt-2 flex flex-wrap gap-1">` + submission.files.map(f => `<button onclick="app.viewFile('${f}')" class="text-[11px] text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition inline-flex items-center gap-1 w-fit border border-blue-100">📎 ${f}</button>`).join('') + `</div>`;
+                            filesHtml = `<div class="mt-2 flex flex-wrap gap-1">` + submission.files.map((f, idx) => {
+                                const fname = typeof f === 'string' ? f : f.name;
+                                return `<button onclick="app.viewFile('hw', '${this.currentUser.id}_${hw.id}', ${idx})" class="text-[11px] text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition inline-flex items-center gap-1 w-fit border border-blue-100">📎 ${fname}</button>`;
+                            }).join('') + `</div>`;
                         }
+
                         content = `<div class="p-6 bg-white border-t border-blue-50 flex justify-between items-center"><div class="flex flex-col"><span class="text-sm font-black text-slate-800">${hw.title}</span>${filesHtml}</div><span class="${statusClass} px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 ml-2">${statusText}</span></div>`;
                     } else if (hw.status === 'none') {
                         content = `<div class="p-8 text-center bg-white border-t border-slate-50"><div class="text-3xl mb-2">😌</div><p class="text-xs text-slate-400 font-bold">숙제 없는 날이에요</p></div>`;
@@ -763,7 +842,8 @@
 
                 filteredMats.forEach(mat => {
                     let icon = '📄'; if(mat.category === '공지') icon = '📢'; if(mat.category === '주교재') icon = '📚';
-                    list.innerHTML += `<li class="p-4 flex items-center justify-between hover:bg-slate-50 transition bg-white border-b border-slate-50 last:border-0"><div class="flex items-start gap-3"><span class="text-xl mt-0.5 shrink-0">${icon}</span><div><p class="text-[13px] font-bold text-slate-800">${mat.title}</p><p class="text-[10px] text-slate-400 mt-1">${mat.category} · 첨부: ${mat.fileName} (${mat.date})</p></div></div><button onclick="app.viewFile('${mat.fileName}')" class="text-xs bg-slate-100 text-slate-600 font-bold px-3 py-1.5 rounded-lg shrink-0 ml-2 hover:bg-slate-200 transition border border-slate-200">다운로드</button></li>`;
+                    const fname = mat.fileObj && mat.fileObj.name ? mat.fileObj.name : mat.fileName;
+                    list.innerHTML += `<li class="p-4 flex items-center justify-between hover:bg-slate-50 transition bg-white border-b border-slate-50 last:border-0"><div class="flex items-start gap-3"><span class="text-xl mt-0.5 shrink-0">${icon}</span><div><p class="text-[13px] font-bold text-slate-800">${mat.title}</p><p class="text-[10px] text-slate-400 mt-1">${mat.category} · 첨부: ${fname} (${mat.date})</p></div></div><button onclick="app.viewFile('mat', ${mat.id}, -1)" class="text-xs bg-slate-100 text-slate-600 font-bold px-3 py-1.5 rounded-lg shrink-0 ml-2 hover:bg-slate-200 transition border border-slate-200">확인</button></li>`;
                 });
             },
             
@@ -835,7 +915,7 @@
                     sList.innerHTML += `<tr class="hover:bg-indigo-50/50 transition cursor-pointer" onclick="adminApp.selectStudent('${u.id}')"><td class="py-4 px-5 font-bold text-slate-900 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>${u.name}</td><td class="py-4 px-5 text-slate-500 font-mono text-xs">${u.id}</td><td class="py-4 px-5">${teacherBadge}</td><td class="py-4 px-5 text-center flex justify-center gap-2"><button onclick="event.stopPropagation(); adminApp.grantAdmin('${u.id}')" class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1.5 rounded-lg hover:bg-blue-100 transition border border-blue-100">임명</button><button onclick="event.stopPropagation(); adminApp.deleteUser('${u.id}')" class="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-1.5 rounded-lg hover:bg-rose-100 transition border border-rose-100">삭제</button></td></tr>`;
                 });
 
-                document.getElementById('ad-conf-week').value = dbData.config.week;
+                document.getElementById('ad-conf-startdate').value = dbData.config.startDate || '';
                 document.getElementById('ad-conf-title').value = dbData.config.title;
 
                 const renderTargets = (selectId) => {
@@ -855,7 +935,6 @@
                 if(app.selectedStudentId) this.selectStudent(app.selectedStudentId);
             },
 
-            // 상단 탭 전환 
             switchTab(tabId) {
                 this.currentTab = tabId;
                 document.getElementById('ad-tab-students').classList.add('hidden');
@@ -866,11 +945,11 @@
                 const btnContents = document.getElementById('ad-tab-btn-contents');
 
                 if(tabId === 'students') {
-                    btnStudents.className = "py-3.5 text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition";
-                    btnContents.className = "py-3.5 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+                    btnStudents.className = "py-3.5 text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition whitespace-nowrap";
+                    btnContents.className = "py-3.5 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition whitespace-nowrap";
                 } else {
-                    btnContents.className = "py-3.5 text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition";
-                    btnStudents.className = "py-3.5 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+                    btnContents.className = "py-3.5 text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition whitespace-nowrap";
+                    btnStudents.className = "py-3.5 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition whitespace-nowrap";
                 }
             },
 
@@ -882,6 +961,7 @@
                     box.innerHTML = `<div class="flex-1 flex items-center justify-center text-xs text-slate-400">접수된 결제 확인 요청이 없습니다.</div>`; return;
                 }
                 dbData.extensionRequests.slice().reverse().forEach((req) => {
+                    const viewBtn = req.proofFile ? `<button onclick="app.viewFile('ext', ${req.id}, -1)" class="text-[11px] text-blue-600 font-bold bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition border border-blue-100 shadow-sm">📎 증명사진 보기</button>` : `<span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-1 rounded">첨부없음</span>`;
                     box.innerHTML += `
                         <div class="p-4 hover:bg-slate-50 transition text-sm">
                             <div class="flex justify-between items-start mb-2">
@@ -889,7 +969,7 @@
                                 <span class="text-[10px] text-slate-400">${req.date}</span>
                             </div>
                             <div class="flex items-center justify-between mt-2">
-                                <button onclick="app.viewFile('${req.proofFile}')" class="text-[11px] text-blue-600 font-bold bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition border border-blue-100 shadow-sm">📎 증명사진 보기</button>
+                                ${viewBtn}
                                 <div class="space-x-2">
                                     <button onclick="adminApp.approveExtReq('${req.userId}')" class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition shadow-sm">연장 제어판</button>
                                     <button onclick="adminApp.deleteExtReq(${req.id})" class="text-[10px] font-bold text-red-500 hover:underline">삭제</button>
@@ -919,17 +999,7 @@
                     suggBox.innerHTML = `<div class="flex-1 flex items-center justify-center text-xs text-slate-400">접수된 제안사항이 없습니다.</div>`; return;
                 }
                 dbData.suggestions.slice().reverse().forEach((s, idx) => {
-                    suggBox.innerHTML += `
-                        <div class="p-4 hover:bg-slate-50 transition text-sm">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="font-bold text-slate-800">${s.studentName} <span class="text-xs font-normal text-slate-500">(${s.phone})</span></span>
-                                <span class="text-[10px] text-slate-400">${s.date}</span>
-                            </div>
-                            <p class="text-slate-600 text-xs whitespace-pre-line bg-slate-50 p-3 rounded-lg border border-slate-100">${s.content}</p>
-                            ${s.extra ? `<p class="text-[10px] text-indigo-500 mt-2 font-bold">추가사항: ${s.extra}</p>` : ''}
-                            <div class="mt-2 text-right"><button onclick="adminApp.deleteSuggestion(${idx})" class="text-[10px] font-bold text-red-500 hover:underline">삭제</button></div>
-                        </div>
-                    `;
+                    suggBox.innerHTML += `<div class="p-4 hover:bg-slate-50 transition text-sm"><div class="flex justify-between items-start mb-2"><span class="font-bold text-slate-800">${s.studentName} <span class="text-xs font-normal text-slate-500">(${s.phone})</span></span><span class="text-[10px] text-slate-400">${s.date}</span></div><p class="text-slate-600 text-xs whitespace-pre-line bg-slate-50 p-3 rounded-lg border border-slate-100">${s.content}</p>${s.extra ? `<p class="text-[10px] text-indigo-500 mt-2 font-bold">추가사항: ${s.extra}</p>` : ''}<div class="mt-2 text-right"><button onclick="adminApp.deleteSuggestion(${idx})" class="text-[10px] font-bold text-red-500 hover:underline">삭제</button></div></div>`;
                 });
             },
             deleteSuggestion(reversedIdx) {
@@ -950,9 +1020,6 @@
                 const admins = dbData.users.filter(u => u.role === 'admin');
                 const teacherOptions = admins.map(a => `<option value="${a.name}" ${student.teacher === a.name ? 'selected' : ''}>${a.name} 선생님</option>`).join('');
 
-                const myMissions = dbData.missions[userId] || [false, false, false];
-                const completedMissionsCount = myMissions.filter(m => m).length;
-                const missionRate = Math.round((completedMissionsCount / 3) * 100);
                 const mySubs = dbData.subs.filter(s => s.userId === userId);
                 const assignedHws = dbData.homeworks.filter(h => h.status !== 'none' && (h.target === 'all' || h.target === userId));
                 
@@ -968,8 +1035,12 @@
                         
                         let fileBadge = '';
                         if(subRecord && subRecord.files && subRecord.files.length > 0) {
-                            fileBadge = `<div class="mt-2 flex flex-wrap gap-1">` + subRecord.files.map(f => `<button onclick="app.viewFile('${f}')" class="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition border border-blue-100">📎 ${f}</button>`).join('') + `</div>`;
+                            fileBadge = `<div class="mt-2 flex flex-wrap gap-1">` + subRecord.files.map((f, idx) => {
+                                const fname = typeof f === 'string' ? f : f.name;
+                                return `<button onclick="app.viewFile('hw', '${userId}_${h.id}', ${idx})" class="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition border border-blue-100">📎 ${fname}</button>`;
+                            }).join('') + `</div>`;
                         }
+
                         hwListHtml += `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100"><div><p class="text-xs font-bold text-slate-800">[${h.day}] ${h.title}</p>${fileBadge}</div><div class="text-right">${subStatusText}</div></div>`;
                     });
                 }
@@ -979,8 +1050,8 @@
                     <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 flex items-center justify-between"><span class="text-xs font-bold text-indigo-900">👨‍🏫 담당 선생님 배정</span><div class="flex gap-2"><select id="assign-teacher-select" class="text-xs px-2 py-1.5 border border-indigo-200 rounded-lg outline-none focus:border-indigo-500 bg-white"><option value="">배정 안 됨 (대기중)</option>${teacherOptions}</select><button onclick="adminApp.assignTeacher('${student.id}')" class="bg-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-sm">적용</button></div></div>
                     <div class="bg-rose-50 border border-rose-100 rounded-xl p-3 flex flex-col md:flex-row md:items-center justify-between gap-3"><div><span class="text-xs font-bold text-rose-700 block">🗓️ 수강 만료일 관리 (결제 확인 후 연장)</span><span class="text-[10px] text-rose-500">현재 만료일: ${student.expireDate || '미등록'}</span></div><div class="flex gap-2 shrink-0"><input type="date" id="assign-expire-date" value="${student.expireDate || ''}" class="text-xs px-2 py-1.5 border border-rose-200 rounded-lg outline-none focus:border-rose-500 bg-white"><button onclick="adminApp.updateExpireDate('${student.id}')" class="bg-rose-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg hover:bg-rose-600 transition shadow-sm">연장 적용</button></div></div>
                     <div class="bg-slate-50 border border-slate-100 rounded-xl p-3"><span class="text-xs font-bold text-slate-700 block mb-2">💬 개별 알림 전송 (학생 알림 센터로 발송)</span><div class="flex gap-2"><input type="text" id="assign-msg-text" placeholder="메시지를 입력하세요" class="flex-1 text-xs px-3 py-1.5 border border-slate-200 rounded-lg outline-none focus:border-slate-500 bg-white"><button onclick="adminApp.sendPrivateMsg('${student.id}')" class="bg-slate-700 text-white text-xs font-bold px-4 py-1.5 rounded-lg hover:bg-slate-800 transition shadow-sm">전송</button></div></div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4"><h4 class="text-xs font-bold text-slate-500 mb-2">💡 미션 진행률</h4><div class="flex items-center gap-3"><div class="w-full bg-slate-200 rounded-full h-2.5"><div class="bg-emerald-500 h-2.5 rounded-full transition-all" style="width: ${missionRate}%"></div></div><span class="text-sm font-black text-emerald-600">${missionRate}%</span></div></div><div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4"><h4 class="text-xs font-bold text-slate-500 mb-2">📚 숙제 제출 수</h4><p class="text-xl font-black text-slate-800">${mySubs.length} <span class="text-xs text-slate-400 font-medium">/ ${assignedHws.length}건 완료</span></p></div></div>
-                    <div class="space-y-3"><h4 class="text-xs font-bold text-slate-500 border-t border-slate-100 pt-3 mt-2">✍️ 숙제 제출 내역 및 채점</h4><div class="space-y-2 max-h-48 overflow-y-auto no-scrollbar">${hwListHtml}</div></div>
+                    <div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 mt-2 flex justify-between items-center"><h4 class="text-xs font-bold text-slate-500">📚 과제 총 제출 수</h4><p class="text-xl font-black text-slate-800">${mySubs.length} <span class="text-xs text-slate-400 font-medium">/ ${assignedHws.length}건 완료</span></p></div>
+                    <div class="space-y-3"><h4 class="text-xs font-bold text-slate-500 border-t border-slate-100 pt-3 mt-2">✍️ 숙제 제출 내역 및 파일 확인</h4><div class="space-y-2 max-h-48 overflow-y-auto no-scrollbar">${hwListHtml}</div></div>
                 `;
             },
             updateExpireDate(userId) {
@@ -991,8 +1062,8 @@
                 if(user) {
                     user.expireDate = newDate;
                     DB.setData(dbData);
-                    app.addNotification(userId, '수강권 연장 안내', `수강 만료일이 ${newDate} 로 정상 연장되었습니다.`);
-                    alert(`수강 만료일이 ${newDate}로 성공적으로 연장되었습니다.`);
+                    app.addNotification(userId, '수강권 연장 안내', `수강 만료일이 ${newDate} 로 연장되었습니다.`);
+                    alert(`수강 만료일이 ${newDate}로 성공적으로 연장되었습니다. 학생에게 자동 알림이 발송됩니다.`);
                     this.render();
                 }
             },
@@ -1086,7 +1157,10 @@
                 matBox.innerHTML = '';
                 if(!dbData.materials || dbData.materials.length === 0) matBox.innerHTML = `<p class="p-4 text-xs text-slate-400 text-center">등록된 자료가 없습니다.</p>`;
                 if(dbData.materials) {
-                    dbData.materials.forEach(m => { matBox.innerHTML += `<div class="p-3 bg-white flex justify-between items-center text-xs hover:bg-slate-50"><span class="font-bold text-slate-700 truncate max-w-[200px]">[${m.category}] ${m.title}</span><button onclick="adminApp.deleteContent('mat', ${m.id})" class="text-red-500 hover:underline font-bold shrink-0">삭제</button></div>`; });
+                    dbData.materials.forEach(m => {
+                        const fname = m.fileObj && m.fileObj.name ? m.fileObj.name : m.fileName;
+                        matBox.innerHTML += `<div class="p-3 bg-white flex justify-between items-center text-xs hover:bg-slate-50"><span class="font-bold text-slate-700 truncate max-w-[200px]">[${m.category}] ${m.title}</span><button onclick="adminApp.deleteContent('mat', ${m.id})" class="text-red-500 hover:underline font-bold shrink-0">삭제</button></div>`; 
+                    });
                 }
             },
 
@@ -1110,31 +1184,45 @@
                 DB.setData(dbData); app.addNotification(target, '새 공지사항 등록', `[공지] ${title} 내용이 등록되었습니다. 홈 화면에서 확인하세요.`);
                 alert("공지사항이 배포되었습니다."); e.target.reset(); this.render();
             },
-            addMaterial(e) {
+            async addMaterial(e) {
                 e.preventDefault();
+                const btn = document.getElementById('btn-mat-submit');
+                btn.textContent = "파일 업로드 중..."; btn.disabled = true;
+
                 const fileInput = document.getElementById('ad-mat-file');
-                if(!fileInput.files.length) return alert("자료 파일을 선택해주세요.");
+                if(!fileInput.files.length) { btn.textContent = "자료실 업로드"; btn.disabled = false; return alert("자료 파일을 선택해주세요."); }
+                
+                const fileObj = await processFileBase64(fileInput.files[0]);
+
                 let dbData = DB.getData();
                 if(!dbData.materials) dbData.materials = [];
                 dbData.materials.push({
                     id: Date.now(), category: document.getElementById('ad-mat-cat').value,
                     title: document.getElementById('ad-mat-title').value,
-                    fileName: fileInput.files[0].name, date: new Date().toLocaleDateString()
+                    fileName: fileInput.files[0].name, fileObj: fileObj, date: new Date().toLocaleDateString()
                 });
-                DB.setData(dbData); alert("자료가 안전하게 업로드되었습니다."); e.target.reset(); this.render();
+
+                try {
+                    DB.setData(dbData); alert("자료가 학생들의 자료실 탭에 안전하게 업로드되었습니다."); e.target.reset(); this.render();
+                } catch(err) {
+                    alert("로컬 스토리지 한계로 너무 큰 파일은 업로드할 수 없습니다.");
+                } finally {
+                    btn.textContent = "자료실 업로드"; btn.disabled = false;
+                }
             },
+
             updateConfig(e) {
                 e.preventDefault();
                 let dbData = DB.getData();
-                dbData.config.week = document.getElementById('ad-conf-week').value;
+                dbData.config.startDate = document.getElementById('ad-conf-startdate').value;
                 dbData.config.title = document.getElementById('ad-conf-title').value;
-                DB.setData(dbData); alert("기본 정보가 수정되었습니다."); this.render();
+                DB.setData(dbData); alert("기본 정보가 실시간 수정되었습니다."); this.render();
             },
             addLecture(e) {
                 e.preventDefault();
                 let dbData = DB.getData();
                 dbData.lectures.push({ id: Date.now(), type: document.getElementById('ad-lec-type').value, title: document.getElementById('ad-lec-title').value, link: document.getElementById('ad-lec-link').value, desc: document.getElementById('ad-lec-desc').value });
-                DB.setData(dbData); alert("강의가 배포되었습니다."); e.target.reset(); this.render();
+                DB.setData(dbData); alert("강의 영상/링크가 배포되었습니다."); e.target.reset(); this.render();
             },
             addHomework(e) {
                 e.preventDefault();
