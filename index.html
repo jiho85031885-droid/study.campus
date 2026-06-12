@@ -62,35 +62,54 @@
         <div class="bg-white w-full max-w-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8">
             <div class="text-center mb-10"><h1 class="font-logo text-5xl text-[#1a365d] mb-1">studycampus</h1><p id="auth-subtitle" class="text-slate-400 text-sm font-medium">계정에 로그인하세요</p></div>
 
-            <form id="login-form" onsubmit="app.login(event)" class="space-y-4">
+            <form id="login-form" onsubmit="app.login(event)" class="space-y-4 block">
                 <div><input type="text" id="login-id" placeholder="아이디 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 transition"></div>
                 <div><input type="password" id="login-pw" placeholder="비밀번호 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 transition"></div>
                 <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition shadow-md">로그인</button>
-                <div class="flex justify-center gap-4 text-xs text-slate-400 mt-4 font-medium"><button type="button" class="hover:text-slate-600">아이디 찾기</button><span>|</span><button type="button" class="hover:text-slate-600">비밀번호 재설정</button></div>
+                <div class="flex justify-center gap-4 text-xs text-slate-400 mt-4 font-medium">
+                    <button type="button" onclick="authUI.toggleMode('findId')" class="hover:text-slate-600">아이디 찾기</button><span>|</span>
+                    <button type="button" onclick="authUI.toggleMode('findPw')" class="hover:text-slate-600">비밀번호 재설정</button>
+                </div>
                 <div class="relative flex py-6 items-center"><div class="flex-grow border-t border-slate-200"></div><span class="shrink-0 mx-4 text-slate-400 text-xs">또는</span><div class="flex-grow border-t border-slate-200"></div></div>
                 <button type="button" onclick="authUI.toggleMode('signup')" class="w-full bg-white border border-slate-300 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-50 transition">회원가입</button>
             </form>
 
+            <form id="find-id-form" onsubmit="app.findId(event)" class="space-y-4 hidden">
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">가입한 이름</label><input type="text" id="find-id-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 transition"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">전화번호</label><input type="text" id="find-id-phone" placeholder="010-0000-0000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 transition"></div>
+                <button type="submit" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition shadow-md">아이디 확인</button>
+                <div class="text-center mt-4 text-xs"><button type="button" onclick="authUI.toggleMode('login')" class="text-slate-500 font-bold hover:underline">← 로그인 화면으로</button></div>
+            </form>
+
+            <form id="find-pw-form" onsubmit="app.findPw(event)" class="space-y-4 hidden">
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">아이디</label><input type="text" id="find-pw-id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-rose-500 transition"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">전화번호</label><input type="text" id="find-pw-phone" placeholder="010-0000-0000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-rose-500 transition"></div>
+                <div><label class="block text-xs font-bold text-rose-500 mb-1">새로운 비밀번호</label><input type="password" id="find-pw-new" required class="w-full bg-rose-50 border border-rose-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-rose-500 transition"></div>
+                <button type="submit" class="w-full bg-rose-600 text-white font-bold py-4 rounded-xl hover:bg-rose-700 transition shadow-md">비밀번호 변경하기</button>
+                <div class="text-center mt-4 text-xs"><button type="button" onclick="authUI.toggleMode('login')" class="text-slate-500 font-bold hover:underline">← 로그인 화면으로</button></div>
+            </form>
+
             <form id="signup-form" onsubmit="app.signup(event)" class="space-y-4 hidden h-[450px] overflow-y-auto no-scrollbar pb-10 px-1">
-                <div><label class="block text-xs font-bold text-slate-500 mb-1">이름</label><input type="text" id="reg-name" placeholder="실명 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
-                <div><label class="block text-xs font-bold text-slate-500 mb-1">아이디</label><input type="text" id="reg-id" placeholder="로그인에 사용할 아이디" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
-                <div><label class="block text-xs font-bold text-slate-500 mb-1">전화번호</label><input type="text" id="reg-phone" placeholder="010-0000-0000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">이름</label><input type="text" id="reg-name" placeholder="실명 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">아이디</label><input type="text" id="reg-id" placeholder="로그인에 사용할 아이디" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">전화번호</label><input type="text" id="reg-phone" placeholder="010-0000-0000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
                 <div class="flex gap-2">
-                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">비밀번호</label><input type="password" id="reg-pw" placeholder="4자 이상" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
-                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">비밀번호 확인</label><input type="password" id="reg-pw-check" placeholder="다시 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
+                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">비밀번호</label><input type="password" id="reg-pw" placeholder="4자 이상" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
+                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">비밀번호 확인</label><input type="password" id="reg-pw-check" placeholder="다시 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
                 </div>
                 <div class="flex gap-2">
-                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">학교</label><input type="text" id="reg-school" placeholder="학교명" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
+                    <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">학교</label><input type="text" id="reg-school" placeholder="학교명" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
                     <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1">학년</label>
-                        <select id="reg-grade" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3">
+                        <select id="reg-grade" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
                             <option value="중1">중1</option><option value="중2">중2</option><option value="중3">중3</option>
                             <option value="고1">고1</option><option value="고2" selected>고2</option><option value="고3">고3</option><option value="N수">N수</option>
                             <option value="대학교 1학년">대학교 1학년</option><option value="대학교 2학년">대학교 2학년</option><option value="대학교 3학년">대학교 3학년</option><option value="대학교 4학년">대학교 4학년</option>
                         </select>
                     </div>
                 </div>
-                <div><label class="block text-xs font-bold text-slate-500 mb-1">학부모 전화번호</label><input type="text" id="reg-parent" placeholder="010-0000-0000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"></div>
-                <div><label class="block text-xs font-bold text-slate-500 mb-1">생년월일</label><input type="date" id="reg-birth" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-500"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">학부모 전화번호</label><input type="text" id="reg-parent" placeholder="010-0000-0000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"></div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1">생년월일</label><input type="date" id="reg-birth" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-slate-500"></div>
+                
                 <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition mt-6 shadow-md text-lg">가입 완료</button>
                 <div class="text-center mt-4 text-xs"><button type="button" onclick="authUI.toggleMode('login')" class="text-slate-500 font-bold hover:underline">← 로그인으로 돌아가기</button></div>
             </form>
@@ -170,7 +189,7 @@
                                 <span id="st-dday" class="text-lg">수강권 마감 D-DAY</span>
                             </div>
                         </div>
-                        <button onclick="studentApp.openPaymentView()" class="w-full md:w-auto bg-red-500 hover:bg-red-600 transition text-white text-xs font-bold px-6 py-3.5 rounded-xl shadow-sm">수강 연장 / 결제하기</button>
+                        <button onclick="studentApp.openPaymentView()" class="w-full md:w-auto bg-red-500 hover:bg-red-600 transition text-white text-xs font-bold px-6 py-3.5 rounded-xl shadow-sm">수강권 결제 센터</button>
                     </div>
 
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
@@ -218,13 +237,14 @@
         </header>
         <main class="max-w-2xl mx-auto w-full p-4 md:p-8 space-y-6">
             <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200">
-                <h2 class="font-black text-xl text-slate-800 mb-4">💳 수강권 상품 선택</h2>
+                <h2 class="font-black text-xl text-slate-800 mb-4">💳 수강권 결제하기</h2>
+                
+                <div id="pmt-external-link-container"></div>
                 <div id="pmt-options" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"></div>
                 
                 <h2 class="font-black text-xl text-slate-800 mb-4 mt-8 border-t border-slate-100 pt-6">🏦 무통장 입금 안내</h2>
-                <p class="text-sm text-indigo-700 font-bold leading-relaxed bg-indigo-50 p-4 rounded-xl border border-indigo-100" id="pmt-account-info">
-                    </p>
-                <p class="text-xs text-slate-500 mt-3 ml-1">수강을 연장하시려면 위 계좌로 입금 후 아래 '수강 신청 입금 처리 요청하기'를 작성하여 제출해주세요.</p>
+                <p class="text-sm text-indigo-700 font-bold leading-relaxed bg-indigo-50 p-4 rounded-xl border border-indigo-100" id="pmt-account-info"></p>
+                <p class="text-xs text-slate-500 mt-3 ml-1">수강을 연장하시려면 위 결제 사이트에서 결제하시거나, 계좌로 입금 후 아래 '수강 신청 입금 처리 요청하기'를 통해 알려주세요.</p>
             </div>
 
             <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200 border-t-4 border-t-indigo-600">
@@ -232,7 +252,7 @@
                 <form onsubmit="studentApp.sendExtRequest(event)" class="space-y-4">
                     <div><label class="block text-xs font-bold text-slate-500 mb-1">학생명</label><input type="text" id="ext-req-name" required class="w-full border border-slate-200 rounded-xl p-3.5 text-sm focus:outline-none focus:border-indigo-500 bg-slate-50"></div>
                     <div><label class="block text-xs font-bold text-slate-500 mb-1">전화번호</label><input type="text" id="ext-req-phone" required class="w-full border border-slate-200 rounded-xl p-3.5 text-sm focus:outline-none focus:border-indigo-500 bg-slate-50"></div>
-                    <div><label class="block text-xs font-bold text-slate-500 mb-1">증명 첨부사진 (입금 캡처 등)</label><input type="file" id="ext-req-file" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 cursor-pointer"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1">결제(입금) 증명 첨부사진</label><input type="file" id="ext-req-file" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 cursor-pointer"></div>
                     <button id="btn-ext-req" type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 transition text-white font-bold py-4 rounded-xl shadow-md mt-4 text-base">요청서 제출하기</button>
                 </form>
             </div>
@@ -264,10 +284,7 @@
             <div class="max-w-6xl mx-auto">
                 
                 <div id="ad-tab-students" class="space-y-8 fade-in">
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-900">학생 통합 관리 시스템</h2>
-                        <p class="text-slate-500 mt-1 text-sm">학생별 세부 진도 파악 및 담당 지정, 수강권 연장을 관리합니다.</p>
-                    </div>
+                    <div><h2 class="text-2xl font-black text-slate-900">학생 통합 관리 시스템</h2><p class="text-slate-500 mt-1 text-sm">학생별 세부 진도 파악 및 담당 지정, 수강권 연장을 관리합니다.</p></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="space-y-6">
@@ -275,16 +292,13 @@
                                 <div class="p-5 border-b border-slate-100 bg-slate-50"><h3 class="font-bold text-[#1a365d] text-base">👥 수강생 종합 명단</h3></div>
                                 <div class="flex-1 overflow-x-auto p-0">
                                     <table class="w-full text-left text-sm whitespace-nowrap">
-                                        <thead class="bg-white sticky top-0 border-b border-slate-100 text-slate-500">
-                                            <tr><th class="py-4 px-5">학생 이름</th><th class="py-4 px-5">아이디</th><th class="py-4 px-5">담당 선생님</th><th class="py-4 px-5 text-center">관리</th></tr>
-                                        </thead>
+                                        <thead class="bg-white sticky top-0 border-b border-slate-100 text-slate-500"><tr><th class="py-4 px-5">학생 이름</th><th class="py-4 px-5">아이디</th><th class="py-4 px-5">담당 선생님</th><th class="py-4 px-5 text-center">관리</th></tr></thead>
                                         <tbody id="ad-student-list" class="divide-y divide-slate-50 text-slate-700"></tbody>
                                     </table>
                                 </div>
                             </div>
-
                             <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm h-[350px] flex flex-col">
-                                <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2 shrink-0">💳 입금 처리 및 수강 연장 요청 <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full">실시간</span></h3>
+                                <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2 shrink-0">💳 결제 및 수강 연장 요청 <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full">실시간</span></h3>
                                 <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-ext-req"></div>
                             </div>
                         </div>
@@ -293,7 +307,6 @@
                             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-6 min-h-[500px]" id="ad-detail-panel">
                                 <div class="text-center py-20 text-slate-400 font-medium">명단에서 학생을 선택하면 상세 정보가 표시됩니다.</div>
                             </div>
-
                             <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm h-[300px] flex flex-col">
                                 <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2 shrink-0">📨 학생 제안 및 개선사항 <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full">실시간</span></h3>
                                 <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-sugg"></div>
@@ -303,32 +316,26 @@
                 </div>
 
                 <div id="ad-tab-contents" class="hidden space-y-12 fade-in pb-10">
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-900">홈페이지 콘텐츠 편집</h2>
-                        <p class="text-slate-500 mt-1 text-sm">카테고리(페이지)별로 학생 화면에 노출될 콘텐츠를 추가하고 관리합니다.</p>
-                    </div>
+                    <div><h2 class="text-2xl font-black text-slate-900">홈페이지 콘텐츠 편집</h2><p class="text-slate-500 mt-1 text-sm">카테고리(페이지)별로 학생 화면에 노출될 콘텐츠를 추가하고 관리합니다.</p></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-12">
-                        
                         <div class="space-y-6">
-                            <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-3 flex items-center gap-2">🏠 공통 / 홈 화면 배너 관리</h2>
+                            <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-3 flex items-center gap-2">🏠 공통 / 홈 화면 관리</h2>
                             
                             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4">
                                 <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-2">⚙️ 자동 주차(WEEK) & 타이틀 설정</h3>
                                 <form onsubmit="adminApp.updateConfig(event)" class="space-y-3">
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-500 mb-1">1주차 시작일 <span class="font-normal text-blue-500">(일요일마다 주차 자동 갱신)</span></label>
-                                        <input type="date" id="ad-conf-startdate" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none text-slate-700">
-                                    </div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">1주차 시작일 <span class="font-normal text-blue-500">(일요일마다 자동 갱신)</span></label><input type="date" id="ad-conf-startdate" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none text-slate-700"></div>
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1">코스 이름 (타이틀)</label><input type="text" id="ad-conf-title" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none"></div>
                                     <button type="submit" class="w-full bg-[#1a365d] text-white font-bold py-3 rounded-xl hover:bg-blue-900 transition text-sm">저장</button>
                                 </form>
                             </div>
 
                             <div class="bg-indigo-50/50 rounded-3xl shadow-sm border border-indigo-100 p-6 space-y-4">
-                                <h3 class="font-bold text-indigo-900 text-base border-b border-indigo-200 pb-2">💳 결제 계좌 및 수강권 설정</h3>
+                                <h3 class="font-bold text-indigo-900 text-base border-b border-indigo-200 pb-2">💳 수강권 결제 사이트 및 계좌 설정</h3>
                                 <form onsubmit="adminApp.updatePaymentConfig(event)" class="space-y-3">
-                                    <div><label class="block text-xs font-bold text-indigo-700 mb-1">입금 계좌 번호 안내문</label><input type="text" id="ad-pmt-account" required placeholder="[하나은행] 342-910508-31507 (예금주: 이*호)" class="w-full border border-indigo-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none bg-white"></div>
+                                    <div><label class="block text-xs font-bold text-indigo-700 mb-1">결제 전용 웹사이트 링크 (URL)</label><input type="url" id="ad-pmt-link" placeholder="https://..." class="w-full border border-indigo-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none bg-white"></div>
+                                    <div><label class="block text-xs font-bold text-indigo-700 mb-1">입금 계좌 안내문</label><input type="text" id="ad-pmt-account" required placeholder="[하나은행] 342-910508-31507 (예금주: 이*호)" class="w-full border border-indigo-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none bg-white"></div>
                                     <div><label class="block text-xs font-bold text-indigo-700 mb-1">수강권 옵션 1 (선택)</label><input type="text" id="ad-pmt-opt1" placeholder="ex) 1개월 수강권 - 150,000원" class="w-full border border-indigo-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none bg-white"></div>
                                     <div><label class="block text-xs font-bold text-indigo-700 mb-1">수강권 옵션 2 (선택)</label><input type="text" id="ad-pmt-opt2" placeholder="ex) 3개월 할인권 - 400,000원" class="w-full border border-indigo-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none bg-white"></div>
                                     <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition text-sm shadow-sm">결제 환경 저장</button>
@@ -339,8 +346,8 @@
                                 <h3 class="font-bold text-[#1a365d] text-base border-b border-slate-100 pb-2">📢 신규 공지사항 배포</h3>
                                 <form onsubmit="adminApp.addAnnouncement(event)" class="space-y-3">
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1">배포 대상</label><select id="ad-ann-target" class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:border-indigo-500 bg-white outline-none"></select></div>
-                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">공지 제목</label><input type="text" id="ad-ann-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none"></div>
-                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">상세 내용</label><textarea id="ad-ann-content" rows="2" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none resize-none"></textarea></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">공지 제목</label><input type="text" id="ad-ann-title" required placeholder="ex) 내일 휴강 안내" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none"></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 mb-1">상세 내용 (박스 형태)</label><textarea id="ad-ann-content" rows="2" required placeholder="학생들이 로그인하면 바로 봅니다." class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 outline-none resize-none"></textarea></div>
                                     <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition shadow-sm text-sm">배포하기</button>
                                 </form>
                             </div>
@@ -408,7 +415,7 @@
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1">카테고리 선택</label><select id="ad-mat-cat" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 bg-white outline-none"></select></div>
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1">자료 제목</label><input type="text" id="ad-mat-title" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 outline-none"></div>
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1">파일 첨부</label><input type="file" id="ad-mat-file" required class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-emerald-50 file:text-emerald-700 cursor-pointer"></div>
-                                    <button type="submit" id="btn-mat-submit" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-sm text-sm">업로드</button>
+                                    <button id="btn-mat-submit" type="submit" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-sm text-sm">업로드</button>
                                 </form>
                             </div>
 
@@ -431,6 +438,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </main>
@@ -471,7 +479,7 @@
                     const initialData = {
                         users: [{ id: 'ijiho853', phone: '01048670953', pw: '0909791hrd*', name: '이지호', role: 'admin', school: '관리자', grade: '선생님' }],
                         config: { startDate: new Date().toISOString().slice(0,10), title: '기출제로원' }, 
-                        paymentConfig: { accountInfo: '[하나은행] 342-910508-31507 (예금주: 이*호)', options: [] },
+                        paymentConfig: { accountInfo: '[하나은행] 342-910508-31507 (예금주: 이*호)', link: '', options: [] },
                         missions: {}, announcements: [], homeworks: [], lectures: [], materials: [], subs: [], notifications: [], suggestions: [],
                         extensionRequests: [], materialCategories: ['공지', '주교재', '숙제제출예시', '기타자료']
                     };
@@ -480,7 +488,8 @@
                     let parsedData = JSON.parse(dataStr);
                     let needsUpdate = false;
                     if(!parsedData.config.startDate) { parsedData.config.startDate = new Date().toISOString().slice(0,10); needsUpdate = true; }
-                    if(!parsedData.paymentConfig) { parsedData.paymentConfig = { accountInfo: '[하나은행] 342-910508-31507 (예금주: 이*호)', options: [] }; needsUpdate = true; }
+                    if(!parsedData.paymentConfig) { parsedData.paymentConfig = { accountInfo: '[하나은행] 342-910508-31507 (예금주: 이*호)', link: '', options: [] }; needsUpdate = true; }
+                    if(parsedData.paymentConfig && parsedData.paymentConfig.link === undefined) { parsedData.paymentConfig.link = ''; needsUpdate = true; }
                     if(!parsedData.notifications) { parsedData.notifications = []; needsUpdate = true; }
                     if(!parsedData.suggestions) { parsedData.suggestions = []; needsUpdate = true; }
                     if(!parsedData.extensionRequests) { parsedData.extensionRequests = []; needsUpdate = true; }
@@ -499,15 +508,19 @@
 
         const authUI = {
             toggleMode(mode) {
-                const loginForm = document.getElementById('login-form');
-                const signupForm = document.getElementById('signup-form');
-                if (mode === 'signup') {
-                    loginForm.style.display = 'none'; signupForm.style.display = 'block';
-                    document.getElementById('auth-subtitle').textContent = "새 계정을 만들어 보세요";
-                } else {
-                    signupForm.style.display = 'none'; loginForm.style.display = 'block';
-                    document.getElementById('auth-subtitle').textContent = "계정에 로그인하세요";
-                }
+                const forms = {
+                    'login': document.getElementById('login-form'),
+                    'signup': document.getElementById('signup-form'),
+                    'findId': document.getElementById('find-id-form'),
+                    'findPw': document.getElementById('find-pw-form')
+                };
+                Object.values(forms).forEach(f => { if(f) f.style.display = 'none'; });
+                
+                const subtitle = document.getElementById('auth-subtitle');
+                if (mode === 'signup') { forms['signup'].style.display = 'block'; subtitle.textContent = "새 계정을 만들어 보세요"; }
+                else if (mode === 'findId') { forms['findId'].style.display = 'block'; subtitle.textContent = "가입하신 이름과 전화번호를 입력해주세요"; }
+                else if (mode === 'findPw') { forms['findPw'].style.display = 'block'; subtitle.textContent = "아이디와 전화번호 확인 후 비밀번호를 재설정합니다"; }
+                else { forms['login'].style.display = 'block'; subtitle.textContent = "계정에 로그인하세요"; }
             }
         };
 
@@ -515,6 +528,34 @@
             selectedStudentId: null,
             init() { DB.init(); this.route(); },
             
+            findId(e) {
+                e.preventDefault();
+                const name = document.getElementById('find-id-name').value.trim();
+                const phone = document.getElementById('find-id-phone').value.trim();
+                const dbData = DB.getData();
+                const user = dbData.users.find(u => u.name === name && u.phone === phone);
+                if(user) {
+                    alert(`회원님의 아이디는 [ ${user.id} ] 입니다.`);
+                    authUI.toggleMode('login');
+                    document.getElementById('login-id').value = user.id;
+                } else { alert("일치하는 회원 정보가 없습니다."); }
+            },
+            findPw(e) {
+                e.preventDefault();
+                const id = document.getElementById('find-pw-id').value.trim();
+                const phone = document.getElementById('find-pw-phone').value.trim();
+                const newPw = document.getElementById('find-pw-new').value.trim();
+                let dbData = DB.getData();
+                let userIndex = dbData.users.findIndex(u => u.id === id && u.phone === phone);
+                if(userIndex > -1) {
+                    dbData.users[userIndex].pw = newPw;
+                    DB.setData(dbData);
+                    alert("비밀번호가 성공적으로 변경되었습니다. 새 비밀번호로 로그인해주세요.");
+                    document.getElementById('find-pw-form').reset();
+                    authUI.toggleMode('login');
+                } else { alert("아이디와 전화번호가 일치하는 회원 정보가 없습니다."); }
+            },
+
             getAutoWeek() {
                 const dbData = DB.getData();
                 if (!dbData.config.startDate) return "WEEK 1";
@@ -685,7 +726,6 @@
                     unassignedBanner.innerHTML = ''; unassignedBanner.classList.add('hidden');
                 }
 
-                // D-Day 계산
                 const ddayTextEl = document.getElementById('st-dday');
                 if(this.currentUser.expireDate) {
                     const extDate = new Date(this.currentUser.expireDate);
@@ -694,7 +734,7 @@
                     const diffTime = extDate - today;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     if(diffDays > 0) ddayTextEl.innerHTML = `수강권 만료 <b class="text-red-600 ml-1">D-${diffDays}</b>`;
-                    else if (diffDays === 0) ddayTextEl.innerHTML = `<b class="text-red-600">수강권 만료 D-DAY</b>`;
+                    else if (diffDays === 0) ddayTextEl.innerHTML = `<b class="text-red-600">수강권 마감 D-DAY</b>`;
                     else ddayTextEl.innerHTML = `수강권 만료됨`;
                 } else { ddayTextEl.innerHTML = `수강권 미등록`; }
 
@@ -714,37 +754,34 @@
                 this.switchTab('home');
             },
 
-            // 💡 결제 권한 확인 로직
             isSubscribed() {
                 if(!this.currentUser.expireDate) return false;
                 const ext = new Date(this.currentUser.expireDate);
                 const now = new Date();
-                ext.setHours(23, 59, 59, 999); // 해당 일의 끝까지 유효
+                ext.setHours(23, 59, 59, 999); 
                 return ext >= now;
             },
 
-            // 💡 결제 모달 뷰 열기
             openPaymentView() {
                 const dbData = DB.getData();
-                document.getElementById('pmt-account-info').textContent = dbData.paymentConfig.accountInfo || '[하나은행] 342-910508-31507 (예금주: 이*호)';
+                const pmtConfig = dbData.paymentConfig || {};
                 
+                document.getElementById('pmt-account-info').textContent = pmtConfig.accountInfo || '[하나은행] 342-910508-31507 (예금주: 이*호)';
+                
+                const linkContainer = document.getElementById('pmt-external-link-container');
+                if(pmtConfig.link) {
+                    linkContainer.innerHTML = `<button onclick="window.open('${pmtConfig.link}', '_blank')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md mb-6 transition text-lg flex justify-center items-center gap-2">결제 전용 사이트로 이동하기 🔗</button>`;
+                } else {
+                    linkContainer.innerHTML = '';
+                }
+
                 const optBox = document.getElementById('pmt-options');
                 optBox.innerHTML = '';
-                if(dbData.paymentConfig.options && dbData.paymentConfig.options.length > 0) {
-                    dbData.paymentConfig.options.forEach((opt, idx) => {
-                        optBox.innerHTML += `
-                            <label class="block cursor-pointer">
-                                <input type="radio" name="pmt-option" class="peer sr-only" ${idx===0 ? 'checked' : ''}>
-                                <div class="p-4 rounded-xl border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition">
-                                    <p class="font-bold text-slate-800 text-sm">${opt.name}</p>
-                                    <p class="text-indigo-600 font-black mt-1">${opt.price}</p>
-                                </div>
-                            </label>
-                        `;
+                if(pmtConfig.options && pmtConfig.options.length > 0) {
+                    pmtConfig.options.forEach((opt, idx) => {
+                        optBox.innerHTML += `<label class="block cursor-pointer"><input type="radio" name="pmt-option" class="peer sr-only" ${idx===0 ? 'checked' : ''}><div class="p-4 rounded-xl border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition"><p class="font-bold text-slate-800 text-sm">${opt.name}</p><p class="text-indigo-600 font-black mt-1">${opt.price}</p></div></label>`;
                     });
-                } else {
-                    optBox.innerHTML = `<div class="col-span-2 text-xs text-slate-400 p-4 text-center">선생님이 설정한 특별 상품이 없습니다. 일반 수강권 금액을 입금해주세요.</div>`;
-                }
+                } else { optBox.innerHTML = `<div class="col-span-2 text-xs text-slate-400 p-4 text-center border rounded-xl">선생님이 설정한 특별 상품이 없습니다. 일반 수강권 금액을 입금해주세요.</div>`; }
 
                 document.getElementById('ext-req-name').value = this.currentUser.name;
                 document.getElementById('ext-req-phone').value = this.currentUser.phone;
@@ -779,11 +816,8 @@
                     alert("결제 확인 요청이 성공적으로 전송되었습니다! 선생님이 확인 후 수강권이 연장됩니다.");
                     e.target.reset();
                     this.closePaymentView();
-                } catch(err) {
-                    alert("이미지 용량이 너무 큽니다. 사진 크기를 줄여주세요.");
-                } finally {
-                    btn.textContent = "요청서 제출하기"; btn.disabled = false;
-                }
+                } catch(err) { alert("이미지 용량이 너무 큽니다. 사진 크기를 줄여주세요."); } 
+                finally { btn.textContent = "요청서 제출하기"; btn.disabled = false; }
             },
 
             updateXP(amount) {
@@ -926,7 +960,6 @@
                 }
             },
 
-            // 💡 탭 전환 시 권한 확인 (Paywall)
             switchTab(tabId) {
                 const restrictedTabs = ['homework', 'test', 'lecture', 'material'];
                 const hasAccess = this.isSubscribed();
@@ -975,8 +1008,8 @@
                 document.getElementById('ad-conf-startdate').value = dbData.config.startDate || '';
                 document.getElementById('ad-conf-title').value = dbData.config.title;
                 
-                // 결제 설정 렌더링
                 const pmtConfig = dbData.paymentConfig || {};
+                document.getElementById('ad-pmt-link').value = pmtConfig.link || '';
                 document.getElementById('ad-pmt-account').value = pmtConfig.accountInfo || '';
                 if(pmtConfig.options && pmtConfig.options.length > 0) document.getElementById('ad-pmt-opt1').value = `${pmtConfig.options[0].name} - ${pmtConfig.options[0].price}`;
                 if(pmtConfig.options && pmtConfig.options.length > 1) document.getElementById('ad-pmt-opt2').value = `${pmtConfig.options[1].name} - ${pmtConfig.options[1].price}`;
@@ -1042,7 +1075,7 @@
             },
             approveExtReq(userId) {
                 this.selectStudent(userId);
-                alert("우측의 학생 상세 패널에서 [수강 만료일 관리]를 설정해주세요.");
+                alert("좌측의 학생 상세 패널에서 [수강 만료일 관리]를 설정해주세요.");
                 document.getElementById('ad-detail-panel').scrollIntoView({behavior: 'smooth'});
             },
             deleteExtReq(reqId) {
@@ -1159,36 +1192,6 @@
                 }
             },
 
-            // 홈페이지 설정 로직
-            updateConfig(e) {
-                e.preventDefault();
-                let dbData = DB.getData();
-                dbData.config.startDate = document.getElementById('ad-conf-startdate').value;
-                dbData.config.title = document.getElementById('ad-conf-title').value;
-                DB.setData(dbData); alert("기본 정보가 실시간 수정되었습니다."); this.render();
-            },
-            updatePaymentConfig(e) {
-                e.preventDefault();
-                let dbData = DB.getData();
-                if(!dbData.paymentConfig) dbData.paymentConfig = { options: [] };
-                
-                dbData.paymentConfig.accountInfo = document.getElementById('ad-pmt-account').value;
-                
-                const opt1 = document.getElementById('ad-pmt-opt1').value.trim();
-                const opt2 = document.getElementById('ad-pmt-opt2').value.trim();
-                dbData.paymentConfig.options = [];
-                
-                if(opt1) {
-                    const parts = opt1.split('-');
-                    dbData.paymentConfig.options.push({ name: parts[0]?.trim() || opt1, price: parts[1]?.trim() || '' });
-                }
-                if(opt2) {
-                    const parts = opt2.split('-');
-                    dbData.paymentConfig.options.push({ name: parts[0]?.trim() || opt2, price: parts[1]?.trim() || '' });
-                }
-                DB.setData(dbData); alert("결제 정보가 학생 페이지에 성공적으로 연동되었습니다."); this.render();
-            },
-
             renderMaterialCategories() {
                 const dbData = DB.getData();
                 const cats = dbData.materialCategories || [];
@@ -1298,6 +1301,35 @@
                 finally { btn.textContent = "업로드"; btn.disabled = false; }
             },
 
+            updateConfig(e) {
+                e.preventDefault();
+                let dbData = DB.getData();
+                dbData.config.startDate = document.getElementById('ad-conf-startdate').value;
+                dbData.config.title = document.getElementById('ad-conf-title').value;
+                DB.setData(dbData); alert("기본 정보가 실시간 수정되었습니다."); this.render();
+            },
+            updatePaymentConfig(e) {
+                e.preventDefault();
+                let dbData = DB.getData();
+                if(!dbData.paymentConfig) dbData.paymentConfig = { options: [] };
+                
+                dbData.paymentConfig.link = document.getElementById('ad-pmt-link').value.trim();
+                dbData.paymentConfig.accountInfo = document.getElementById('ad-pmt-account').value;
+                
+                const opt1 = document.getElementById('ad-pmt-opt1').value.trim();
+                const opt2 = document.getElementById('ad-pmt-opt2').value.trim();
+                dbData.paymentConfig.options = [];
+                
+                if(opt1) {
+                    const parts = opt1.split('-');
+                    dbData.paymentConfig.options.push({ name: parts[0]?.trim() || opt1, price: parts[1]?.trim() || '' });
+                }
+                if(opt2) {
+                    const parts = opt2.split('-');
+                    dbData.paymentConfig.options.push({ name: parts[0]?.trim() || opt2, price: parts[1]?.trim() || '' });
+                }
+                DB.setData(dbData); alert("결제 환경 설정이 학생 페이지에 성공적으로 연동되었습니다."); this.render();
+            },
             addLecture(e) {
                 e.preventDefault();
                 let dbData = DB.getData();
