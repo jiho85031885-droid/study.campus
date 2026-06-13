@@ -78,7 +78,7 @@
         </div>
     </div>
 
-    <!-- 💡 정책/약관 확인용 모달 추가 -->
+    <!-- 정책/약관 확인용 모달 -->
     <div id="policy-modal" class="hidden fixed inset-0 z-[120] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 fade-in pt-safe pb-safe">
         <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl scale-95 transition-transform flex flex-col max-h-[80dvh]" id="policy-modal-content">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
@@ -136,10 +136,12 @@
                     <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">이름</label><input type="text" id="reg-name" placeholder="실명 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base"></div>
                     <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">아이디</label><input type="text" id="reg-id" placeholder="영문/숫자" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base"></div>
                     <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">전화번호</label><input type="text" id="reg-phone" placeholder="010-0000-0000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base"></div>
-                    <div class="flex gap-3">
+                    
+                    <div id="pw-wrapper" class="flex gap-3">
                         <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">비밀번호</label><input type="password" id="reg-pw" placeholder="4자 이상" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base"></div>
                         <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">비밀번호 확인</label><input type="password" id="reg-pw-check" placeholder="다시 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base"></div>
                     </div>
+
                     <div class="flex gap-3">
                         <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">학교</label><input type="text" id="reg-school" placeholder="학교명" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base"></div>
                         <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">학년</label>
@@ -158,6 +160,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- ========================================== -->
     <!-- [2] 학생 메인 뷰 -->
@@ -201,7 +204,7 @@
                     </div>
                 </div>
 
-                <!-- 🔒 수강권 전용 미결제 차단막 (Paywall) -->
+                <!-- 🔒 수강권 전용 미결제 차단막 -->
                 <div id="restricted-view" class="hidden tab-content fade-in flex-col items-center justify-center py-24 px-4 text-center">
                     <div class="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center text-3xl mb-5 mx-auto shadow-inner">🔒</div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-800 mb-2">수강권 전용 메뉴</h2>
@@ -257,7 +260,6 @@
                         </form>
                     </div>
 
-                    <!-- 💡 1:1 문의하기 폼 추가 -->
                     <div class="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-slate-200 border-t-4 border-t-blue-500">
                         <h3 class="font-bold text-[#1a365d] mb-4 text-sm md:text-base">1:1 문의하기 (결제, 환불, 서비스 이용)</h3>
                         <form onsubmit="studentApp.sendInquiry(event)" class="space-y-3">
@@ -277,9 +279,8 @@
                 </div>
             </div>
 
-            <!-- 💡 공용 푸터 (JS에서 데이터 렌더링) -->
+            <!-- 회사 정보 푸터 -->
             <div class="site-footer w-full"></div>
-            
         </main>
 
         <nav class="bg-white border-t border-slate-200 w-full fixed bottom-0 z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] pb-safe">
@@ -406,13 +407,11 @@
                             </div>
                         </div>
 
-                        <!-- 💡 1:1 문의 & 제안사항 보드 합침 -->
                         <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                             <div class="bg-white rounded-3xl p-5 md:p-6 border border-slate-200 shadow-sm h-[300px] flex flex-col">
-                                <h3 class="font-bold text-slate-800 text-sm md:text-base mb-4 flex items-center gap-2 shrink-0">📨 학생 제안 및 개선사항 <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full">실시간</span></h3>
+                                <h3 class="font-bold text-slate-800 text-sm md:text-base mb-4 flex items-center gap-2 shrink-0">📨 학생 제안 및 개선사항 <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full">실시간 수신</span></h3>
                                 <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-sugg"></div>
                             </div>
-                            <!-- 💡 1:1 문의 내역 보드 -->
                             <div class="bg-white rounded-3xl p-5 md:p-6 border border-slate-200 shadow-sm h-[300px] flex flex-col border-t-4 border-t-blue-500">
                                 <h3 class="font-bold text-[#1a365d] text-sm md:text-base mb-4 flex items-center gap-2 shrink-0">💬 1:1 문의 내역 (결제/환불/이용) <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full">실시간</span></h3>
                                 <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-inquiries"></div>
@@ -519,7 +518,6 @@
                         </div>
                     </div>
 
-                    <!-- 💡 회사 푸터 정보 설정란 -->
                     <div class="pt-8">
                         <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">🏢 회사 정보 관리 (푸터 연동)</h2>
                         <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 space-y-4 mt-6">
@@ -541,6 +539,21 @@
                         </div>
                     </div>
 
+                    <!-- 💡 새롭게 추가된 약관 및 정책 관리 에디터 -->
+                    <div class="pt-8">
+                        <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">📄 약관 및 정책 관리</h2>
+                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 space-y-4 mt-6">
+                            <p class="text-xs md:text-sm text-slate-500 mb-2">학생 푸터에서 팝업으로 보여지는 정책 내용을 수정합니다.</p>
+                            <form onsubmit="adminApp.updatePolicies(event)" class="space-y-4">
+                                <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">상품 정보</label><textarea id="ad-pol-product" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none h-24 resize-none bg-slate-50"></textarea></div>
+                                <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">이용약관</label><textarea id="ad-pol-terms" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none h-32 resize-none bg-slate-50"></textarea></div>
+                                <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">개인정보처리방침</label><textarea id="ad-pol-privacy" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none h-32 resize-none bg-slate-50"></textarea></div>
+                                <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">환불 정책</label><textarea id="ad-pol-refund" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none h-24 resize-none bg-slate-50"></textarea></div>
+                                <button type="submit" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl hover:bg-slate-900 transition text-sm shadow-sm">약관 및 정책 업데이트</button>
+                            </form>
+                        </div>
+                    </div>
+
                     <div class="pt-8">
                         <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">⚙️ 시스템 백업 및 복구</h2>
                         <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 mt-6 max-w-xl">
@@ -553,6 +566,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
 
                 <!-- 💡 [탭 3] 결제/수강권 관리 탭 -->
@@ -563,7 +577,6 @@
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-10 md:gap-y-12">
-                        <!-- 결제 환경 설정 -->
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">⚙️ 결제 환경 설정</h2>
                             <div class="bg-indigo-50/50 rounded-3xl shadow-sm border border-indigo-100 p-5 md:p-6 space-y-4">
@@ -578,7 +591,6 @@
                             </div>
                         </div>
 
-                        <!-- 수강 연장 요청 확인 리스트 -->
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">💳 입금 처리 및 수강 연장 요청</h2>
                             <div class="bg-white rounded-3xl p-5 md:p-6 border border-slate-200 shadow-sm h-[500px] flex flex-col relative">
@@ -594,14 +606,13 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- [4] 자바스크립트 로직 (데이터 & 기능) -->
+    <!-- [4] 자바스크립트 로직 -->
     <!-- ========================================== -->
     <script>
         const DB_KEY = 'studycampus_permanent_db'; 
         let isCloudMode = false;
         let cloudData = null;
 
-        // 파이어베이스 설정 (테스트를 위해 공란으로 둘 시 오프라인 로컬 저장소 모드로 작동)
         const firebaseConfig = {
             apiKey: "선생님의_API_KEY",
             authDomain: "선생님의_PROJECT_ID.firebaseapp.com",
@@ -649,9 +660,16 @@
                     users: [{ id: 'ijiho853', phone: '01048670953', pw: '0909791hrd*', name: '이지호', role: 'admin', school: '관리자', grade: '선생님' }],
                     config: { startDate: new Date().toISOString().slice(0,10), title: '기출제로원' }, 
                     companyInfo: { companyName: 'STUDYCAMPUS Co.LTD', serviceName: 'STUDYCAMPUS', ceo: '이지호', bizNum: '-', ecomNum: '-', address: '-', phone: '-', email: '-', bizLink: '-' },
+                    // 💡 정책 데이터 저장소 기본값
+                    policies: {
+                        product: '온라인 수강권 및 교재 등의 상품 정보를 안내하는 페이지입니다.\n상세 내용은 업데이트 예정입니다.',
+                        terms: '제1장 총칙\n제1조 (목적)\n본 약관은 회사가 제공하는 교육 서비스의 이용조건 및 절차를 규정합니다.\n... 상세 내용 업데이트 예정.',
+                        privacy: '회사는 회원님의 개인정보를 안전하게 보호합니다.\n수집 항목: 이름, 전화번호, 학교 등\n... 상세 내용 업데이트 예정.',
+                        refund: '환불 규정 안내\n수강 시작 전: 전액 환불\n수강 시작 후: 규정에 따른 부분 환불\n결제 수단별 환불 소요 기간이 다를 수 있습니다.'
+                    },
                     paymentConfig: { accountInfo: '[하나은행] 342-910508-31507 (예금주: 이*호)', link: '', options: [] },
                     missions: {}, announcements: [], homeworks: [], lectures: [], materials: [], subs: [], notifications: [], suggestions: [],
-                    inquiries: [], // 1:1 문의사항 리스트
+                    inquiries: [],
                     extensionRequests: [], materialCategories: ['공지', '주교재', '숙제제출예시', '기타자료'], lectureProgress: {}
                 };
             },
@@ -663,6 +681,7 @@
                         if(data) {
                             cloudData = data;
                             if(!cloudData.companyInfo) cloudData.companyInfo = { companyName: 'STUDYCAMPUS Co.LTD', serviceName: 'STUDYCAMPUS', ceo: '이지호', bizNum: '-', ecomNum: '-', address: '-', phone: '-', email: '-', bizLink: '-' };
+                            if(!cloudData.policies) cloudData.policies = this.initDefaultData().policies;
                             if(!cloudData.inquiries) cloudData.inquiries = [];
                             if(!cloudData.paymentConfig) cloudData.paymentConfig = { accountInfo: '[하나은행] 342-910508-31507 (예금주: 이*호)', link: '', options: [] };
                             if(!cloudData.extensionRequests) cloudData.extensionRequests = [];
@@ -681,6 +700,7 @@
                         let parsedData = JSON.parse(dataStr);
                         let needsUpdate = false;
                         if(!parsedData.companyInfo) { parsedData.companyInfo = { companyName: 'STUDYCAMPUS Co.LTD', serviceName: 'STUDYCAMPUS', ceo: '이지호', bizNum: '-', ecomNum: '-', address: '-', phone: '-', email: '-', bizLink: '-' }; needsUpdate = true; }
+                        if(!parsedData.policies) { parsedData.policies = this.initDefaultData().policies; needsUpdate = true; }
                         if(!parsedData.inquiries) { parsedData.inquiries = []; needsUpdate = true; }
                         if(!parsedData.config.startDate) { parsedData.config.startDate = new Date().toISOString().slice(0,10); needsUpdate = true; }
                         if(!parsedData.paymentConfig) { parsedData.paymentConfig = { accountInfo: '[하나은행] 342-910508-31507 (예금주: 이*호)', link: '', options: [] }; needsUpdate = true; }
@@ -729,7 +749,6 @@
                 DB.init(() => { this.route(); }); 
             },
 
-            // 💡 동적 회사 정보 푸터 렌더링
             renderFooter() {
                 const dbData = DB.getData();
                 const info = dbData.companyInfo;
@@ -765,16 +784,20 @@
                 document.querySelectorAll('.site-footer').forEach(el => el.innerHTML = footerHtml);
             },
             
+            // 💡 정책 모달 데이터 실시간 바인딩
             showPolicy(type) {
+                const dbData = DB.getData();
+                const pol = dbData.policies || {};
                 const modal = document.getElementById('policy-modal');
                 document.getElementById('policy-title').textContent = type;
-                let text = '';
-                if(type === '상품 정보') text = '온라인 수강권 및 교재 등의 상품 정보를 안내하는 페이지입니다.\n상세 내용은 업데이트 예정입니다.';
-                else if(type === '이용약관') text = '제1장 총칙\n제1조 (목적)\n본 약관은 회사가 제공하는 교육 서비스의 이용조건 및 절차를 규정합니다.\n... 상세 내용 업데이트 예정.';
-                else if(type === '개인정보처리방침') text = '회사는 회원님의 개인정보를 안전하게 보호합니다.\n수집 항목: 이름, 전화번호, 학교 등\n... 상세 내용 업데이트 예정.';
-                else if(type === '환불 정책') text = '환불 규정 안내\n수강 시작 전: 전액 환불\n수강 시작 후: 규정에 따른 부분 환불\n결제 수단별 환불 소요 기간이 다를 수 있습니다.';
                 
-                document.getElementById('policy-text').textContent = text;
+                let text = '';
+                if(type === '상품 정보') text = pol.product;
+                else if(type === '이용약관') text = pol.terms;
+                else if(type === '개인정보처리방침') text = pol.privacy;
+                else if(type === '환불 정책') text = pol.refund;
+                
+                document.getElementById('policy-text').textContent = text || '등록된 내용이 없습니다.';
                 modal.classList.remove('hidden');
             },
             closePolicy() {
@@ -1340,8 +1363,6 @@
                 app.addNotification('admin', '학생 제안 접수', `${this.currentUser.name} 학생의 개선/제안사항이 도착했습니다.`);
                 alert("의견이 선생님께 전달되었습니다. 감사합니다!"); e.target.reset();
             },
-            
-            // 💡 1:1 문의 제출 로직
             sendInquiry(e) {
                 e.preventDefault();
                 let dbData = DB.getData();
@@ -1356,7 +1377,6 @@
                 app.addNotification('admin', '1:1 문의 접수', `${this.currentUser.name} 학생의 ${document.getElementById('inq-type').value}가 접수되었습니다.`);
                 alert("문의가 정상적으로 접수되었습니다. 답변은 순차적으로 진행됩니다."); e.target.reset();
             },
-
             withdraw() {
                 if(confirm("정말 탈퇴하시겠습니까? 그동안의 모든 학습 데이터와 과제 제출 기록이 삭제되며 복구할 수 없습니다.")) {
                     let dbData = DB.getData();
@@ -1420,7 +1440,6 @@
                 if(pmtConfig.options && pmtConfig.options.length > 0) document.getElementById('ad-pmt-opt1').value = `${pmtConfig.options[0].name} - ${pmtConfig.options[0].price}`;
                 if(pmtConfig.options && pmtConfig.options.length > 1) document.getElementById('ad-pmt-opt2').value = `${pmtConfig.options[1].name} - ${pmtConfig.options[1].price}`;
 
-                // 💡 관리자 회사 정보 입력 폼 매핑
                 const cInfo = dbData.companyInfo;
                 document.getElementById('ad-comp-name').value = cInfo.companyName;
                 document.getElementById('ad-comp-service').value = cInfo.serviceName;
@@ -1431,6 +1450,12 @@
                 document.getElementById('ad-comp-phone').value = cInfo.phone;
                 document.getElementById('ad-comp-email').value = cInfo.email;
                 document.getElementById('ad-comp-bizlink').value = cInfo.bizLink === '-' ? '' : cInfo.bizLink;
+
+                const pol = dbData.policies || {};
+                document.getElementById('ad-pol-product').value = pol.product || '';
+                document.getElementById('ad-pol-terms').value = pol.terms || '';
+                document.getElementById('ad-pol-privacy').value = pol.privacy || '';
+                document.getElementById('ad-pol-refund').value = pol.refund || '';
 
                 const renderTargets = (selectId) => {
                     const targetSelect = document.getElementById(selectId);
@@ -1480,7 +1505,7 @@
                             <div class="flex justify-between items-start">
                                 <div>
                                     <span class="font-bold text-slate-800 text-sm md:text-base">${req.name} 학생 <span class="text-[11px] font-normal text-slate-500 block md:inline md:ml-1 mt-0.5 md:mt-0">(${req.phone})</span></span>
-                                    ${selectedOptHtml}
+                                    <br>${selectedOptHtml}
                                 </div>
                                 <span class="text-[10px] md:text-xs text-slate-400 mt-1">${req.date}</span>
                             </div>
@@ -1527,7 +1552,6 @@
                 DB.setData(dbData); this.render();
             },
 
-            // 💡 1:1 문의사항 리스트 렌더링
             renderInquiries() {
                 const dbData = DB.getData();
                 const inqBox = document.getElementById('ad-manage-inquiries');
@@ -1566,6 +1590,9 @@
                 const admins = dbData.users.filter(u => u.role === 'admin');
                 const teacherOptions = admins.map(a => `<option value="${a.name}" ${student.teacher === a.name ? 'selected' : ''}>${a.name} 선생님</option>`).join('');
 
+                const myMissions = dbData.missions[userId] || [false, false, false];
+                const completedMissionsCount = myMissions.filter(m => m).length;
+                const missionRate = Math.round((completedMissionsCount / 3) * 100);
                 const mySubs = dbData.subs.filter(s => s.userId === userId);
                 const assignedHws = dbData.homeworks.filter(h => h.status !== 'none' && (h.target === 'all' || h.target === userId));
                 
@@ -1644,7 +1671,6 @@
                 }
             },
 
-            // 💡 회사 정보 수정 로직
             updateCompanyInfo(e) {
                 e.preventDefault();
                 let dbData = DB.getData();
@@ -1661,7 +1687,22 @@
                 };
                 DB.setData(dbData);
                 alert("회사 정보가 모든 화면 푸터에 실시간 업데이트되었습니다!");
-                app.renderFooter(); // 즉시 리렌더링
+                app.renderFooter();
+                this.render();
+            },
+            
+            // 💡 정책 관리 로직 추가
+            updatePolicies(e) {
+                e.preventDefault();
+                let dbData = DB.getData();
+                dbData.policies = {
+                    product: document.getElementById('ad-pol-product').value,
+                    terms: document.getElementById('ad-pol-terms').value,
+                    privacy: document.getElementById('ad-pol-privacy').value,
+                    refund: document.getElementById('ad-pol-refund').value
+                };
+                DB.setData(dbData);
+                alert("약관 및 정책이 성공적으로 업데이트되었습니다.");
                 this.render();
             },
 
@@ -1852,7 +1893,10 @@
             }
         };
 
+        // 모바일/PC 모두 하단, 상단 안전여백 적용
         document.head.insertAdjacentHTML("beforeend", `<style>.pb-safe { padding-bottom: env(safe-area-inset-bottom); } .pt-safe { padding-top: env(safe-area-inset-top); }</style>`);
+        
+        // 앱 실행
         app.init();
     </script>
 </body>
