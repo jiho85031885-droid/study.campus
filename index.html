@@ -8,15 +8,32 @@
     <meta name="theme-color" content="#f4f6f8">
     
     <link rel="canonical" href="https://studycampus.app/" />
-    <title>studycampus</title>
+    <title>studycampus - V18</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
         
-        body { font-family: 'Pretendard', sans-serif; background-color: #f4f6f8; color: #1e293b; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Pretendard', sans-serif; 
+            background-color: #f4f6f8; 
+            color: #1e293b; 
+            overflow-x: hidden; 
+            -webkit-tap-highlight-color: transparent; 
+            overscroll-behavior-y: none; /* 모바일 브라우저 당겨서 새로고침 방지 */
+        }
         .font-logo { font-family: 'Caveat', cursive; letter-spacing: 0.5px; }
         
+        /* 모바일 사파리 하단바/상단바 대응 최적화 영역 */
+        .h-screen-dvh { height: 100vh; height: 100dvh; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .pt-safe { padding-top: env(safe-area-inset-top); }
+        
+        /* 모바일 사파리 폼 입력 시 강제 확대(Zoom-in) 방지 */
+        @media screen and (max-width: 768px) {
+            input, select, textarea { font-size: 16px !important; }
+        }
+
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
         .bounce-in { animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
         .slide-left { animation: slideLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
@@ -27,16 +44,18 @@
         @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        /* 모바일 스크롤바 숨김 (터치 스와이프 최적화) */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* 폼 요소 기본 스타일 초기화 (iOS 그림자 방지) */
         input, select, textarea { appearance: none; -webkit-appearance: none; border-radius: 0; }
+        
+        .circle-check { appearance: none; width: 1.5rem; height: 1.5rem; border: 2px solid #cbd5e1; border-radius: 50%; cursor: pointer; transition: all 0.2s; position: relative; }
+        .circle-check:checked { background-color: #10b981; border-color: #10b981; }
+        .circle-check:checked::after { content: ''; position: absolute; left: 8px; top: 4px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
     </style>
 </head>
 <body class="flex flex-col min-h-screen relative w-full">
 
+    <!-- 글로벌 알림 패널 -->
     <div id="notification-panel" class="hidden fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex justify-end">
         <div class="w-full max-w-sm bg-white h-full shadow-2xl flex flex-col slide-left">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 pt-safe">
@@ -50,24 +69,25 @@
         </div>
     </div>
 
-    <div id="file-viewer-modal" class="hidden fixed inset-0 z-[110] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
-        <div class="bg-white w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl scale-95 transition-transform flex flex-col max-h-[90vh]" id="file-viewer-content">
+    <!-- 파일 뷰어 모달 -->
+    <div id="file-viewer-modal" class="hidden fixed inset-0 z-[110] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 fade-in pt-safe pb-safe">
+        <div class="bg-white w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl scale-95 transition-transform flex flex-col max-h-[90dvh]" id="file-viewer-content">
             <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                 <h3 class="font-bold text-slate-800 flex items-center gap-2 text-sm md:text-base">첨부파일 확인: <span id="fv-title" class="text-indigo-600 truncate max-w-[150px] md:max-w-md">파일명</span></h3>
                 <button onclick="app.closeFileViewer()" class="text-slate-400 hover:text-slate-600 font-bold text-2xl px-2">✕</button>
             </div>
             <div class="p-4 md:p-6 bg-slate-100 flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-[300px]" id="fv-dynamic-content"></div>
-            <div class="p-4 bg-white text-right border-t border-slate-100 shrink-0 flex justify-end gap-2 pb-safe">
+            <div class="p-4 bg-white text-right border-t border-slate-100 shrink-0 flex justify-end gap-2">
                 <button id="fv-download-btn" class="hidden bg-indigo-600 hover:bg-indigo-700 transition text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md">원본 다운로드</button>
                 <button onclick="app.closeFileViewer()" class="bg-slate-800 hover:bg-slate-900 transition text-white px-6 py-3 rounded-xl font-bold text-sm">닫기</button>
             </div>
         </div>
     </div>
 
-    <div id="auth-view" class="fixed inset-0 bg-[#f4f6f8] z-50 flex items-center justify-center fade-in px-4">
-        <div class="bg-white w-full max-w-md rounded-3xl shadow-lg border border-slate-100 p-6 md:p-8 max-h-[95vh] flex flex-col">
+    <!-- 인증 화면 (로그인 / 회원가입) -->
+    <div id="auth-view" class="fixed inset-0 bg-[#f4f6f8] z-50 flex items-center justify-center fade-in px-4 h-screen-dvh">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-lg border border-slate-100 p-6 md:p-8 max-h-[95dvh] flex flex-col">
             <div class="text-center mb-8 shrink-0"><h1 class="font-logo text-5xl text-[#1a365d] mb-1">studycampus</h1><p id="auth-subtitle" class="text-slate-400 text-sm font-medium mt-2">계정에 로그인하세요</p></div>
-
             <div class="flex-1 overflow-y-auto no-scrollbar pb-2">
                 <form id="login-form" onsubmit="app.login(event)" class="space-y-4 block">
                     <div><input type="text" id="login-id" placeholder="아이디 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4 focus:outline-none focus:border-blue-500 transition text-base"></div>
@@ -114,6 +134,7 @@
                             </select>
                         </div>
                     </div>
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">학부모 전화번호</label><input type="text" id="reg-parent" placeholder="010-0000-0000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base"></div>
                     <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">생년월일</label><input type="date" id="reg-birth" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base text-slate-500"></div>
                     <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition mt-6 shadow-md text-lg">가입 완료하기</button>
                     <div class="text-center mt-4"><button type="button" onclick="authUI.toggleMode('login')" class="text-slate-500 font-bold text-sm hover:underline p-2">← 로그인으로 돌아가기</button></div>
@@ -122,8 +143,10 @@
         </div>
     </div>
 
-
-    <div id="student-view" class="hidden flex-col h-screen w-full bg-[#f4f6f8] relative">
+    <!-- ========================================== -->
+    <!-- [2] 학생 메인 뷰 -->
+    <!-- ========================================== -->
+    <div id="student-view" class="hidden flex-col h-screen-dvh w-full bg-[#f4f6f8] relative">
         <header class="bg-white h-[60px] md:h-16 border-b border-slate-200 flex justify-center items-center px-4 shrink-0 sticky top-0 z-40 w-full pt-safe">
             <div class="w-full max-w-5xl flex justify-between items-center">
                 <h1 class="font-logo text-2xl md:text-3xl text-[#1a365d] font-bold mt-1">studycampus</h1>
@@ -140,6 +163,7 @@
         <main class="flex-1 overflow-y-auto no-scrollbar pb-24 w-full">
             <div class="max-w-5xl mx-auto w-full p-4 md:p-6">
                 
+                <!-- 탭 1: 홈 화면 -->
                 <div id="tab-home" class="tab-content fade-in space-y-5 md:space-y-6">
                     <div id="st-unassigned-banner" class="hidden bounce-in"></div>
                     <div id="st-announcement-container"></div>
@@ -161,6 +185,7 @@
                     </div>
                 </div>
 
+                <!-- 🔒 수강권 전용 미결제 차단막 (Paywall) -->
                 <div id="restricted-view" class="hidden tab-content fade-in flex-col items-center justify-center py-24 px-4 text-center">
                     <div class="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center text-3xl mb-5 mx-auto shadow-inner">🔒</div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-800 mb-2">수강권 전용 메뉴</h2>
@@ -168,14 +193,19 @@
                     <button onclick="studentApp.openPaymentView()" class="bg-indigo-600 hover:bg-indigo-700 transition text-white font-bold px-8 py-3.5 rounded-xl shadow-md text-base w-full md:w-auto">수강권 결제 바로가기</button>
                 </div>
 
+                <!-- 탭 2: 숙제 화면 -->
                 <div id="tab-homework" class="tab-content hidden fade-in space-y-5 md:space-y-6">
-                    <div class="bg-[#4176ff] rounded-3xl p-6 md:p-8 text-center text-white shadow-md">
-                        <h2 class="text-2xl md:text-3xl font-black"><span class="auto-week-text">WEEK</span> <span class="bg-white/20 text-xs px-3 py-1 rounded-full ml-2 align-middle">이번 주</span></h2>
-                        <p class="text-sm text-blue-100 mt-2 md:mt-3" id="st-hw-title">과정명</p>
+                    <div class="bg-gradient-to-r from-blue-500 to-[#4176ff] rounded-3xl p-6 md:p-8 text-white shadow-md flex justify-between items-center">
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-black flex items-center gap-2"><span class="auto-week-text">WEEK</span> <span class="bg-white/20 text-[10px] md:text-xs px-2.5 py-1 rounded-full font-bold">이번 주</span></h2>
+                            <p class="text-xs md:text-sm text-blue-100 mt-2" id="st-hw-title">과정명</p>
+                        </div>
+                        <div class="text-4xl opacity-80">📝</div>
                     </div>
-                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden" id="st-hw-container"></div>
+                    <div id="st-hw-container" class="space-y-4"></div>
                 </div>
 
+                <!-- 탭 3~5 -->
                 <div id="tab-test" class="tab-content hidden fade-in space-y-6"><div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 text-center"><span class="text-4xl">📝</span><h3 class="text-lg font-bold text-slate-800 mt-4">테스트 기능 준비 중</h3></div></div>
                 
                 <div id="tab-lecture" class="tab-content hidden fade-in space-y-5 md:space-y-6">
@@ -188,6 +218,7 @@
                     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden"><ul class="divide-y divide-slate-50" id="st-mat-list"></ul></div>
                 </div>
 
+                <!-- 탭 6: MY 화면 -->
                 <div id="tab-my" class="tab-content hidden fade-in space-y-5 md:space-y-6 max-w-2xl mx-auto">
                     <div class="bg-red-50 border border-red-100 rounded-3xl p-5 md:p-6 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
                         <div class="flex items-center gap-3 text-sm font-bold text-red-500 w-full md:w-auto">
@@ -235,6 +266,9 @@
         </nav>
     </div>
 
+    <!-- ========================================== -->
+    <!-- [2-1] 수강권 결제 전용 사이트 모달 -->
+    <!-- ========================================== -->
     <div id="payment-view" class="hidden fixed inset-0 z-[70] bg-[#f4f6f8] overflow-y-auto slide-up pb-safe">
         <header class="bg-white h-[60px] md:h-16 border-b border-slate-200 flex justify-center items-center px-4 sticky top-0 z-40 w-full shadow-sm pt-safe">
             <div class="w-full max-w-2xl flex justify-between items-center">
@@ -266,6 +300,9 @@
         </main>
     </div>
 
+    <!-- ========================================== -->
+    <!-- [2-2] 다크모드 전용 강의 플레이어 뷰 -->
+    <!-- ========================================== -->
     <div id="lecture-player-view" class="hidden fixed inset-0 z-[80] bg-[#0f172a] text-slate-200 flex-col overflow-hidden slide-up pb-safe">
         <div class="h-[60px] md:h-16 border-b border-slate-700 flex items-center px-4 shrink-0 bg-[#1e293b] pt-safe">
             <button onclick="studentApp.closeLecturePlayer()" class="text-slate-400 hover:text-white flex items-center gap-2 font-bold text-sm transition p-2 -ml-2">
@@ -306,7 +343,10 @@
         </div>
     </div>
     
-    <div id="admin-view" class="hidden flex-col h-screen w-full bg-[#f4f6f8] relative">
+    <!-- ========================================== -->
+    <!-- [3] 선생님(관리자) 종합 대시보드 -->
+    <!-- ========================================== -->
+    <div id="admin-view" class="hidden flex-col h-screen-dvh w-full bg-[#f4f6f8] relative">
         <header class="bg-[#1a365d] h-[60px] md:h-16 flex justify-center items-center px-4 shrink-0 sticky top-0 z-40 w-full shadow-md pt-safe">
             <div class="w-full max-w-6xl flex justify-between items-center text-white">
                 <div class="flex items-center gap-2 md:gap-3"><h1 class="font-logo text-xl md:text-2xl font-bold mt-1">studycampus</h1><span class="bg-rose-500 px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold tracking-wider hidden md:inline-block">TEACHER</span></div>
@@ -330,6 +370,7 @@
         <main class="flex-1 overflow-y-auto no-scrollbar p-4 md:p-8 w-full pb-safe">
             <div class="max-w-6xl mx-auto">
                 
+                <!-- [탭 1] 학생/요청 관리 -->
                 <div id="ad-tab-students" class="space-y-6 md:space-y-8 fade-in">
                     <div class="hidden md:block">
                         <h2 class="text-2xl font-black text-slate-900">학생 통합 관리 시스템</h2>
@@ -365,10 +406,12 @@
                     </div>
                 </div>
 
+                <!-- [탭 2] 홈페이지 편집 -->
                 <div id="ad-tab-contents" class="hidden space-y-8 md:space-y-12 fade-in pb-10">
                     <div class="hidden md:block"><h2 class="text-2xl font-black text-slate-900">홈페이지 콘텐츠 편집</h2><p class="text-slate-500 mt-1 text-sm">카테고리(페이지)별로 학생 화면에 노출될 콘텐츠를 추가하고 관리합니다.</p></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-10 md:gap-y-12">
+                        <!-- 🏠 공통 및 홈 화면 관리 -->
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">🏠 공통 / 홈 화면 관리</h2>
                             
@@ -408,6 +451,7 @@
                             </div>
                         </div>
 
+                        <!-- 📝 숙제 화면 관리 -->
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">📝 숙제 화면 관리</h2>
                             
@@ -430,6 +474,7 @@
                             </div>
                         </div>
 
+                        <!-- 📼 강의 화면 관리 -->
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">📼 강의 화면 관리</h2>
                             
@@ -450,6 +495,7 @@
                             </div>
                         </div>
 
+                        <!-- 🗂️ 자료실 화면 관리 -->
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">🗂️ 자료실 화면 관리</h2>
                             
@@ -494,6 +540,9 @@
         </main>
     </div>
 
+    <!-- ========================================== -->
+    <!-- [4] 자바스크립트 로직 -->
+    <!-- ========================================== -->
     <script>
         const DB_KEY = 'studycampus_permanent_db'; 
         
@@ -826,7 +875,7 @@
                 optBox.innerHTML = '';
                 if(pmtConfig.options && pmtConfig.options.length > 0) {
                     pmtConfig.options.forEach((opt, idx) => {
-                        optBox.innerHTML += `<label class="block cursor-pointer"><input type="radio" name="pmt-option" class="peer sr-only" ${idx===0 ? 'checked' : ''}><div class="p-4 rounded-xl border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition"><p class="font-bold text-slate-800 text-sm">${opt.name}</p><p class="text-indigo-600 font-black mt-1">${opt.price}</p></div></label>`;
+                        optBox.innerHTML += `<label class="block cursor-pointer"><input type="radio" name="pmt-option" value="${opt.name} (${opt.price})" class="peer sr-only" ${idx===0 ? 'checked' : ''}><div class="p-4 rounded-xl border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition"><p class="font-bold text-slate-800 text-sm">${opt.name}</p><p class="text-indigo-600 font-black mt-1">${opt.price}</p></div></label>`;
                     });
                 } else { optBox.innerHTML = `<div class="col-span-2 text-xs text-slate-400 p-4 text-center border rounded-xl bg-slate-50">선생님이 설정한 특별 상품이 없습니다. 일반 수강권 금액을 입금해주세요.</div>`; }
 
@@ -850,16 +899,20 @@
                 let fileObj = null;
                 if(fileInput.files.length > 0) { fileObj = await processFileBase64(fileInput.files[0]); }
                 
+                const selectedOptEl = document.querySelector('input[name="pmt-option"]:checked');
+                const selectedOptText = selectedOptEl ? selectedOptEl.value : '기본 입금 확인';
+
                 let dbData = DB.getData();
                 dbData.extensionRequests.push({
                     id: Date.now(), userId: this.currentUser.id,
                     name: document.getElementById('ext-req-name').value, phone: document.getElementById('ext-req-phone').value,
+                    selectedOption: selectedOptText,
                     proofFile: fileObj, date: new Date().toLocaleString()
                 });
                 
                 try {
                     DB.setData(dbData);
-                    app.addNotification('admin', '수강 연장 결제 확인 요청', `${this.currentUser.name} 학생의 결제 확인 요청이 접수되었습니다.`);
+                    app.addNotification('admin', '수강 연장 결제 확인 요청', `${this.currentUser.name} 학생의 결제 확인 요청이 접수되었습니다. [${selectedOptText}]`);
                     alert("결제 확인 요청이 성공적으로 전송되었습니다! 선생님이 확인 후 수강권이 연장됩니다.");
                     e.target.reset(); this.closePaymentView();
                 } catch(err) { alert("이미지 용량이 너무 큽니다. 사진 크기를 줄여주세요."); } 
@@ -909,34 +962,67 @@
                     finally { btn.textContent = "과제 제출하기"; btn.disabled = false; }
                 } else { btn.textContent = "과제 제출하기"; btn.disabled = false; }
             },
+
             renderHomeworks() {
                 const dbData = DB.getData();
                 const container = document.getElementById('st-hw-container');
                 container.innerHTML = '';
+                
                 const myHomeworks = dbData.homeworks.filter(hw => hw.target === 'all' || hw.target === this.currentUser.id);
                 if(myHomeworks.length === 0) { container.innerHTML = `<div class="p-10 text-center text-slate-400 font-bold bg-white">😌 이번 주 배포된 과제가 없습니다.</div>`; return; }
 
+                const groupedHw = {};
                 myHomeworks.forEach(hw => {
-                    const submission = dbData.subs.find(s => s.hwId === hw.id && s.userId === this.currentUser.id);
-                    let content = '';
-                    if(submission) {
-                        const statusText = submission.checked ? '✅ 채점 완료(통과)' : '확인 대기중';
-                        const statusClass = submission.checked ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600';
-                        let filesHtml = '';
-                        if(submission.files && submission.files.length > 0) {
-                            filesHtml = `<div class="mt-3 flex flex-wrap gap-2">` + submission.files.map((f, idx) => {
-                                const fname = typeof f === 'string' ? f : f.name;
-                                return `<button onclick="app.viewFile('hw', '${this.currentUser.id}_${hw.id}', ${idx})" class="text-xs text-blue-600 font-bold bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition border border-blue-100 shadow-sm flex items-center gap-1">📎 ${fname}</button>`;
-                            }).join('') + `</div>`;
-                        }
-                        content = `<div class="p-5 md:p-6 bg-white border-t border-blue-50 flex justify-between items-center"><div class="flex flex-col"><span class="text-sm md:text-base font-black text-slate-800">${hw.title}</span>${filesHtml}</div><span class="${statusClass} px-3 py-1.5 rounded-lg text-[11px] md:text-xs font-bold shrink-0 ml-3 shadow-sm">${statusText}</span></div>`;
-                    } else if (hw.status === 'none') {
-                        content = `<div class="p-8 text-center bg-white border-t border-slate-50"><div class="text-3xl mb-2">😌</div><p class="text-xs text-slate-400 font-bold">숙제 없는 날이에요</p></div>`;
-                    } else {
-                        content = `<div class="p-5 md:p-6 bg-white border-t border-blue-50"><p class="text-sm md:text-base font-black text-slate-800 mb-4">${hw.title}</p><div class="mb-4 p-4 border border-dashed border-blue-200 bg-blue-50/20 rounded-xl"><label class="block text-xs font-bold text-slate-500 mb-2">과제 사진/파일 여러 장 첨부</label><input type="file" id="hw-files-${hw.id}" multiple class="w-full text-xs md:text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 cursor-pointer"/></div><button onclick="studentApp.submitHW(${hw.id})" class="w-full bg-[#4176ff] text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition shadow-sm text-sm">과제 제출하기</button></div>`;
-                    }
-                    container.innerHTML += `<div class="border-b border-slate-100 bg-blue-50/10"><div class="flex items-center justify-between p-4 md:p-5"><div class="flex items-center gap-4"><div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center font-black text-sm md:text-base ${hw.status !== 'none' ? 'bg-[#4176ff] text-white shadow-md' : 'bg-slate-100 text-slate-500'}">${hw.day}</div><div class="font-bold text-xs md:text-sm text-slate-800">${hw.date}</div></div></div>${content}</div>`;
+                    const key = `${hw.day}_${hw.date}`;
+                    if(!groupedHw[key]) groupedHw[key] = [];
+                    groupedHw[key].push(hw);
                 });
+
+                for(let key in groupedHw) {
+                    const [day, date] = key.split('_');
+                    const tasks = groupedHw[key];
+                    
+                    let tasksHtml = '';
+                    tasks.forEach(hw => {
+                        const submission = dbData.subs.find(s => s.hwId === hw.id && s.userId === this.currentUser.id);
+                        let content = '';
+                        if(submission) {
+                            const statusText = submission.checked ? '✅ 채점 완료(통과)' : '확인 대기중';
+                            const statusClass = submission.checked ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600';
+                            let filesHtml = '';
+                            if(submission.files && submission.files.length > 0) {
+                                filesHtml = `<div class="mt-2 flex flex-wrap gap-1">` + submission.files.map((f, idx) => {
+                                    const fname = typeof f === 'string' ? f : f.name;
+                                    return `<button onclick="app.viewFile('hw', '${this.currentUser.id}_${hw.id}', ${idx})" class="text-[11px] text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition border border-blue-100">📎 ${fname}</button>`;
+                                }).join('') + `</div>`;
+                            }
+                            content = `<div class="p-4 md:p-5 bg-white flex flex-col md:flex-row md:justify-between md:items-center gap-3"><div class="flex flex-col"><span class="text-sm font-bold text-slate-800">${hw.title}</span>${filesHtml}</div><div class="text-right shrink-0"><span class="${statusClass} px-2.5 py-1 rounded-md text-[11px] font-bold shadow-sm">${statusText}</span></div></div>`;
+                        } else {
+                            content = `<div class="p-4 md:p-5 bg-white"><p class="text-sm font-bold text-slate-800 mb-3">${hw.title}</p><div class="mb-3 p-3 border border-dashed border-blue-200 bg-blue-50/20 rounded-xl"><label class="block text-[11px] font-bold text-slate-500 mb-2">사진/파일 여러 장 첨부</label><input type="file" id="hw-files-${hw.id}" multiple class="w-full text-[11px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-bold file:bg-blue-100 file:text-blue-700 cursor-pointer"/></div><button onclick="studentApp.submitHW(${hw.id})" class="w-full bg-[#4176ff] text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-sm text-xs md:text-sm">과제 제출하기</button></div>`;
+                        }
+                        tasksHtml += `<div class="border-b border-slate-50 last:border-0">${content}</div>`;
+                    });
+
+                    container.innerHTML += `
+                        <div class="bg-white rounded-[20px] shadow-sm border border-slate-200 overflow-hidden mb-5">
+                            <div class="p-4 flex items-center justify-between bg-slate-50 border-b border-slate-100">
+                                <div class="flex items-center gap-3 md:gap-4">
+                                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-slate-200 flex flex-col items-center justify-center text-[#1a365d] shadow-sm">
+                                        <span class="text-xs md:text-sm font-black">${day}</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-800 text-sm md:text-base">${day}요일</p>
+                                        <p class="text-[10px] md:text-xs text-slate-400 mt-0.5">${date}</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold text-slate-400 bg-white px-2.5 py-1 rounded border border-slate-200">총 ${tasks.length}건</span>
+                            </div>
+                            <div class="divide-y divide-slate-50 bg-slate-50/30">
+                                ${tasksHtml}
+                            </div>
+                        </div>
+                    `;
+                }
             },
 
             openLecturePlayer(lecId) {
@@ -1032,7 +1118,7 @@
                     
                     const progText = prog >= 80 ? `<span class="text-[10px] text-emerald-500 font-bold bg-emerald-50 px-2 py-0.5 rounded shadow-sm">수강완료</span>` : `<span class="text-[10px] text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded shadow-sm">수강률 ${prog}%</span>`;
 
-                    list.innerHTML += `<li class="flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 transition bg-white"><div class="flex items-center gap-3 md:gap-4"><div class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl shrink-0 ${iconColor}">${lec.type}</div><div><p class="font-bold text-slate-800 text-sm md:text-base line-clamp-1">${lec.title}</p><div class="flex items-center gap-2 mt-1.5"><p class="text-[10px] md:text-xs text-slate-400">${lec.desc}</p>${progText}</div></div></div><div class="shrink-0 ml-3">${btnHtml}</div></li>`;
+                    list.innerHTML += `<li class="flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 transition bg-white border-b border-slate-50 last:border-0"><div class="flex items-center gap-3 md:gap-4"><div class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl shrink-0 ${iconColor}">${lec.type}</div><div><p class="font-bold text-slate-800 text-sm md:text-base line-clamp-1">${lec.title}</p><div class="flex items-center gap-2 mt-1.5"><p class="text-[10px] md:text-xs text-slate-400">${lec.desc}</p>${progText}</div></div></div><div class="shrink-0 ml-3">${btnHtml}</div></li>`;
                 });
             },
             renderMaterials(filterCat = '전체') {
@@ -1116,6 +1202,7 @@
             }
         };
 
+        // 관리자 로직
         const adminApp = {
             currentTab: 'students',
             
@@ -1182,16 +1269,21 @@
                     box.innerHTML = `<div class="flex-1 flex items-center justify-center text-xs text-slate-400">접수된 결제 확인 요청이 없습니다.</div>`; return;
                 }
                 dbData.extensionRequests.slice().reverse().forEach((req) => {
-                    const viewBtn = req.proofFile ? `<button onclick="app.viewFile('ext', ${req.id}, -1)" class="text-[11px] md:text-xs text-blue-600 font-bold bg-blue-50 px-3 py-2 rounded-lg hover:bg-blue-100 transition border border-blue-100 shadow-sm flex items-center gap-1">📎 증명사진</button>` : `<span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-1 rounded">첨부없음</span>`;
+                    const viewBtn = req.proofFile ? `<button onclick="app.viewFile('ext', ${req.id}, -1)" class="text-[11px] md:text-xs text-blue-600 font-bold bg-blue-50 px-3 py-2 rounded-lg hover:bg-blue-100 transition border border-blue-100 shadow-sm flex items-center gap-1 shrink-0">📎 증명사진 보기</button>` : `<span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-1 rounded">첨부없음</span>`;
+                    const selectedOptHtml = req.selectedOption ? `<div class="inline-block bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] px-2 py-1 rounded-md font-bold mt-1.5">신청항목: ${req.selectedOption}</div>` : '';
+
                     box.innerHTML += `
-                        <div class="p-4 md:p-5 hover:bg-slate-50 transition text-sm">
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="font-bold text-slate-800 text-sm md:text-base">${req.name} 학생 <span class="text-[11px] font-normal text-slate-500 block md:inline md:ml-1 mt-0.5 md:mt-0">(${req.phone})</span></span>
-                                <span class="text-[10px] md:text-xs text-slate-400">${req.date}</span>
+                        <div class="p-4 md:p-5 hover:bg-slate-50 transition text-sm border-b border-slate-50 last:border-0">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="font-bold text-slate-800 text-sm md:text-base">${req.name} 학생 <span class="text-[11px] font-normal text-slate-500">(${req.phone})</span></span>
+                                    <br>${selectedOptHtml}
+                                </div>
+                                <span class="text-[10px] md:text-xs text-slate-400 mt-1">${req.date}</span>
                             </div>
-                            <div class="flex items-center justify-between mt-2">
+                            <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
                                 ${viewBtn}
-                                <div class="space-x-1 md:space-x-2">
+                                <div class="space-x-1 md:space-x-2 shrink-0">
                                     <button onclick="adminApp.approveExtReq('${req.userId}')" class="text-[11px] md:text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-lg hover:bg-emerald-100 transition shadow-sm">연장 제어판</button>
                                     <button onclick="adminApp.deleteExtReq(${req.id})" class="text-[11px] md:text-xs font-bold text-red-500 hover:underline px-2 py-2">삭제</button>
                                 </div>
@@ -1220,7 +1312,7 @@
                     suggBox.innerHTML = `<div class="flex-1 flex items-center justify-center text-xs text-slate-400">접수된 제안사항이 없습니다.</div>`; return;
                 }
                 dbData.suggestions.slice().reverse().forEach((s, idx) => {
-                    suggBox.innerHTML += `<div class="p-4 md:p-5 hover:bg-slate-50 transition text-sm"><div class="flex justify-between items-start mb-3"><span class="font-bold text-slate-800 text-sm md:text-base">${s.studentName} <span class="text-[11px] font-normal text-slate-500 block md:inline md:ml-1 mt-0.5 md:mt-0">(${s.phone})</span></span><span class="text-[10px] md:text-xs text-slate-400">${s.date}</span></div><p class="text-slate-600 text-xs md:text-sm whitespace-pre-line bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed">${s.content}</p>${s.extra ? `<p class="text-[11px] text-indigo-500 mt-3 font-bold px-2">추가사항: ${s.extra}</p>` : ''}<div class="mt-3 text-right"><button onclick="adminApp.deleteSuggestion(${idx})" class="text-xs font-bold text-red-500 hover:underline">삭제</button></div></div>`;
+                    suggBox.innerHTML += `<div class="p-4 md:p-5 hover:bg-slate-50 transition text-sm border-b border-slate-50 last:border-0"><div class="flex justify-between items-start mb-3"><span class="font-bold text-slate-800 text-sm md:text-base">${s.studentName} <span class="text-[11px] font-normal text-slate-500 block md:inline md:ml-1 mt-0.5 md:mt-0">(${s.phone})</span></span><span class="text-[10px] md:text-xs text-slate-400">${s.date}</span></div><p class="text-slate-600 text-xs md:text-sm whitespace-pre-line bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed">${s.content}</p>${s.extra ? `<p class="text-[11px] text-indigo-500 mt-3 font-bold px-2">추가사항: ${s.extra}</p>` : ''}<div class="mt-3 text-right"><button onclick="adminApp.deleteSuggestion(${idx})" class="text-xs font-bold text-red-500 hover:underline">삭제</button></div></div>`;
                 });
             },
             deleteSuggestion(reversedIdx) {
@@ -1241,9 +1333,6 @@
                 const admins = dbData.users.filter(u => u.role === 'admin');
                 const teacherOptions = admins.map(a => `<option value="${a.name}" ${student.teacher === a.name ? 'selected' : ''}>${a.name} 선생님</option>`).join('');
 
-                const myMissions = dbData.missions[userId] || [false, false, false];
-                const completedMissionsCount = myMissions.filter(m => m).length;
-                const missionRate = Math.round((completedMissionsCount / 3) * 100);
                 const mySubs = dbData.subs.filter(s => s.userId === userId);
                 const assignedHws = dbData.homeworks.filter(h => h.status !== 'none' && (h.target === 'all' || h.target === userId));
                 
@@ -1254,7 +1343,7 @@
                         const subRecord = mySubs.find(s => s.hwId === h.id);
                         let subStatusText = '';
                         if(!subRecord) subStatusText = `<span class="text-rose-500 font-bold bg-rose-50 px-2 py-1 rounded">🔴 미제출</span>`;
-                        else if(!subRecord.checked) subStatusText = `<button onclick="adminApp.approveHomework(${h.id}, '${userId}')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm">🟡 미확인 (클릭시 검사완료)</button>`;
+                        else if(!subRecord.checked) subStatusText = `<button onclick="adminApp.approveHomework(${h.id}, '${userId}')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm">🟡 미확인 (클릭 시 검사완료)</button>`;
                         else subStatusText = `<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">🟢 검사 및 채점 완료</span>`;
                         
                         let fileBadge = '';
@@ -1265,7 +1354,7 @@
                             }).join('') + `</div>`;
                         }
 
-                        hwListHtml += `<div class="flex flex-col md:flex-row md:items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100 gap-3"><div><p class="text-xs md:text-sm font-bold text-slate-800">[${h.day}] ${h.title}</p>${fileBadge}</div><div class="text-right shrink-0">${subStatusText}</div></div>`;
+                        hwListHtml += `<div class="flex flex-col md:flex-row md:items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100 gap-3 mb-2 last:mb-0"><div><p class="text-xs md:text-sm font-bold text-slate-800">[${h.day}] ${h.title}</p>${fileBadge}</div><div class="text-right shrink-0">${subStatusText}</div></div>`;
                     });
                 }
 
@@ -1275,7 +1364,7 @@
                     <div class="bg-rose-50 border border-rose-100 rounded-xl p-4 flex flex-col justify-between gap-3 mt-4"><div><span class="text-xs md:text-sm font-bold text-rose-700 block mb-1">🗓️ 수강 만료일 관리 (결제 확인 후 연장)</span><span class="text-[11px] text-rose-500 font-medium">현재 만료일: ${student.expireDate || '미등록'}</span></div><div class="flex gap-2 w-full"><input type="date" id="assign-expire-date" value="${student.expireDate || ''}" class="flex-1 text-xs md:text-sm px-3 py-2 border border-rose-200 rounded-xl outline-none focus:border-rose-500 bg-white"><button onclick="adminApp.updateExpireDate('${student.id}')" class="bg-rose-500 text-white text-xs md:text-sm font-bold px-5 py-2 rounded-xl hover:bg-rose-600 transition shadow-sm shrink-0">연장 적용</button></div></div>
                     <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 mt-4"><span class="text-xs md:text-sm font-bold text-slate-700 block mb-2">💬 개별 알림 전송 (학생 알림 센터로 발송)</span><div class="flex gap-2"><input type="text" id="assign-msg-text" placeholder="메시지를 입력하세요" class="flex-1 text-xs md:text-sm px-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-slate-500 bg-white"><button onclick="adminApp.sendPrivateMsg('${student.id}')" class="bg-slate-700 text-white text-xs md:text-sm font-bold px-5 py-2 rounded-xl hover:bg-slate-800 transition shadow-sm shrink-0">전송</button></div></div>
                     <div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 mt-5 flex justify-between items-center"><h4 class="text-xs md:text-sm font-bold text-slate-500">📚 과제 총 제출 수</h4><p class="text-2xl font-black text-slate-800">${mySubs.length} <span class="text-xs md:text-sm text-slate-400 font-medium">/ ${assignedHws.length}건 완료</span></p></div>
-                    <div class="space-y-4 mt-6"><h4 class="text-xs md:text-sm font-bold text-slate-500 border-t border-slate-100 pt-4">✍️ 숙제 제출 내역 및 파일 확인</h4><div class="space-y-3 max-h-64 overflow-y-auto no-scrollbar">${hwListHtml}</div></div>
+                    <div class="space-y-4 mt-6"><h4 class="text-xs md:text-sm font-bold text-slate-500 border-t border-slate-100 pt-4 mb-3">✍️ 숙제 제출 내역 및 파일 확인</h4><div class="max-h-64 overflow-y-auto no-scrollbar">${hwListHtml}</div></div>
                 `;
             },
             updateExpireDate(userId) {
@@ -1330,7 +1419,7 @@
                 
                 catList.innerHTML = ''; catSelect.innerHTML = '';
                 cats.forEach(c => {
-                    catList.innerHTML += `<div class="flex items-center gap-1 bg-slate-100 px-3 py-2 rounded-full text-[11px] md:text-xs font-bold text-slate-600"><span class="truncate max-w-[100px]">${c}</span><button onclick="adminApp.deleteMatCategory('${c}')" class="text-red-400 hover:text-red-600 ml-1 p-1">✕</button></div>`;
+                    catList.innerHTML += `<div class="flex items-center gap-1 bg-slate-100 px-3 py-1.5 rounded-full text-[11px] md:text-xs font-bold text-slate-600"><span class="truncate max-w-[100px]">${c}</span><button onclick="adminApp.deleteMatCategory('${c}')" class="text-red-400 hover:text-red-600 ml-1 p-1">✕</button></div>`;
                     catSelect.innerHTML += `<option value="${c}">${c}</option>`;
                 });
             },
@@ -1509,10 +1598,9 @@
             }
         };
 
-        // iPhone 하단 여백 자동 보정 로직
+        // 모바일/PC 모두 하단, 상단 안전여백 적용
         document.head.insertAdjacentHTML("beforeend", `<style>.pb-safe { padding-bottom: env(safe-area-inset-bottom); } .pt-safe { padding-top: env(safe-area-inset-top); }</style>`);
         
-        // 앱 실행
         app.init();
     </script>
 </body>
