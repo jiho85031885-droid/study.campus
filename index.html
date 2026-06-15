@@ -12,11 +12,8 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- 💡 파이어베이스 클라우드 연동 라이브러리 -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
-
-    <!-- 유튜브 IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <style>
@@ -25,11 +22,9 @@
         
         body { font-family: 'Pretendard', sans-serif; background-color: #f4f6f8; color: #1e293b; overflow-x: hidden; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
         .font-logo { font-family: 'Caveat', cursive; letter-spacing: 0.5px; }
-        
         .h-screen-dvh { height: 100vh; height: 100dvh; }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
         .pt-safe { padding-top: env(safe-area-inset-top); }
-        
         @media screen and (max-width: 768px) { input, select, textarea { font-size: 16px !important; } }
 
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
@@ -49,11 +44,14 @@
         .circle-check { appearance: none; width: 1.5rem; height: 1.5rem; border: 2px solid #cbd5e1; border-radius: 50%; cursor: pointer; transition: all 0.2s; position: relative; }
         .circle-check:checked { background-color: #10b981; border-color: #10b981; }
         .circle-check:checked::after { content: ''; position: absolute; left: 8px; top: 4px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+        
+        /* 💡 테스트 라이디오 버튼 스타일 */
+        .test-radio { appearance: none; width: 1.25rem; height: 1.25rem; border: 2px solid #cbd5e1; border-radius: 50%; cursor: pointer; transition: all 0.2s; position: relative; flex-shrink:0; mt-0.5; }
+        .test-radio:checked { border-color: #4176ff; border-width: 5px; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen relative w-full">
 
-    <!-- [공통 모달 영역] -->
     <div id="notification-panel" class="hidden fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex justify-end">
         <div class="w-full max-w-sm bg-white h-full shadow-2xl flex flex-col slide-left">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 pt-safe">
@@ -106,7 +104,6 @@
                 <form id="student-form" onsubmit="adminApp.saveStudent(event)" class="space-y-4">
                     <input type="hidden" id="modal-stu-mode" value="add">
                     <input type="hidden" id="modal-stu-original-id" value="">
-                    
                     <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">이름</label><input type="text" id="modal-stu-name" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-base focus:border-blue-500 outline-none bg-slate-50"></div>
                     <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">아이디</label><input type="text" id="modal-stu-id" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-base focus:border-blue-500 outline-none bg-slate-50"></div>
                     <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">비밀번호</label><input type="text" id="modal-stu-pw" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-base focus:border-blue-500 outline-none bg-slate-50"></div>
@@ -127,7 +124,42 @@
         </div>
     </div>
 
-    <!-- [인증 화면 (로그인 / 회원가입)] -->
+    <div id="test-builder-modal" class="hidden fixed inset-0 z-[130] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 pt-safe pb-safe fade-in">
+        <div class="bg-white w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90dvh]">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                <h3 class="font-black text-lg text-[#1a365d]">📝 새 테스트 출제하기</h3>
+                <button onclick="adminApp.closeTestBuilder()" class="text-slate-400 hover:text-slate-600 font-bold text-2xl px-2">✕</button>
+            </div>
+            <div class="p-6 bg-white flex-1 overflow-y-auto space-y-4">
+                <input type="text" id="tb-title" placeholder="테스트 제목 (ex: 3주차 영단어/문법 시험)" class="w-full border border-slate-200 rounded-xl px-4 py-3.5 text-lg focus:border-blue-500 outline-none font-black text-slate-800 bg-slate-50">
+                <select id="tb-target" class="w-full border border-slate-200 rounded-xl px-4 py-3.5 text-base focus:border-blue-500 outline-none text-slate-700 bg-slate-50"></select>
+                
+                <div class="flex justify-between items-center mt-6 border-t border-slate-100 pt-6">
+                    <h4 class="font-bold text-slate-800">질문 목록 (<span id="tb-q-count">0</span>제)</h4>
+                    <button type="button" onclick="adminApp.addTestQuestion()" class="bg-blue-50 text-blue-600 font-bold px-4 py-2 rounded-xl text-sm border border-blue-100 shadow-sm">+ 질문 추가</button>
+                </div>
+                <div id="tb-questions-container" class="space-y-4"></div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 shrink-0 flex gap-3">
+                <button onclick="adminApp.closeTestBuilder()" class="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3.5 rounded-xl shadow-sm hover:bg-slate-50 transition">취소</button>
+                <button onclick="adminApp.saveTest()" class="flex-1 bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-sm hover:bg-emerald-600 transition">테스트 배포하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="test-paper-modal" class="hidden fixed inset-0 z-[130] bg-[#f4f6f8] flex-col overflow-hidden slide-up pb-safe">
+        <header class="bg-white h-[60px] md:h-16 border-b border-slate-200 flex items-center px-4 shrink-0 shadow-sm sticky top-0 z-40 pt-safe">
+            <button onclick="studentApp.closeTestPaper()" class="text-slate-400 hover:text-slate-600 font-bold text-sm p-2 -ml-2 shrink-0">✕ 닫기</button>
+            <h1 class="font-black text-base md:text-lg text-[#1a365d] ml-4 flex-1 truncate text-center mr-8" id="tp-title">테스트 제목</h1>
+        </header>
+        <main class="flex-1 overflow-y-auto no-scrollbar w-full pb-20 relative">
+            <div class="max-w-3xl mx-auto w-full p-4 md:p-6 space-y-6" id="tp-questions-container"></div>
+            <div class="max-w-3xl mx-auto w-full px-4 md:px-6 mt-8 mb-10">
+                <button onclick="studentApp.submitTestPaper()" class="w-full bg-[#4176ff] text-white font-bold py-4 rounded-2xl shadow-md hover:bg-blue-700 transition text-lg">답안 제출하기</button>
+            </div>
+        </main>
+    </div>
+
     <div id="auth-view" class="fixed inset-0 bg-[#f4f6f8] z-50 flex items-center justify-center fade-in px-4 h-screen-dvh">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-lg border border-slate-100 p-6 md:p-8 max-h-[95dvh] flex flex-col relative overflow-hidden">
             <div class="text-center mb-6 mt-4 shrink-0"><h1 class="font-logo text-5xl text-[#1a365d] mb-1">studycampus</h1><p id="auth-subtitle" class="text-slate-400 text-sm font-medium mt-2">계정에 로그인하세요</p></div>
@@ -170,14 +202,11 @@
                         <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">비밀번호</label><input type="password" id="reg-pw" placeholder="4자 이상" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base"></div>
                         <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">비밀번호 확인</label><input type="password" id="reg-pw-check" placeholder="다시 입력" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base"></div>
                     </div>
-
                     <div class="flex gap-3">
                         <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">학교</label><input type="text" id="reg-school" placeholder="학교명" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base"></div>
                         <div class="flex-1"><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">학년</label>
                             <select id="reg-grade" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-blue-500 text-base text-slate-700">
-                                <option value="중1">중1</option><option value="중2">중2</option><option value="중3">중3</option>
-                                <option value="고1">고1</option><option value="고2" selected>고2</option><option value="고3">고3</option><option value="N수">N수</option>
-                                <option value="대학교 1학년">대학교 1학년</option><option value="대학교 2학년">대학교 2학년</option><option value="대학교 3학년">대학교 3학년</option><option value="대학교 4학년">대학교 4학년</option>
+                                <option value="중1">중1</option><option value="중2">중2</option><option value="중3">중3</option><option value="고1">고1</option><option value="고2" selected>고2</option><option value="고3">고3</option><option value="N수">N수</option><option value="대학교 1학년">대학교 1학년</option><option value="대학교 2학년">대학교 2학년</option><option value="대학교 3학년">대학교 3학년</option><option value="대학교 4학년">대학교 4학년</option>
                             </select>
                         </div>
                     </div>
@@ -191,7 +220,6 @@
     </div>
 
 
-    <!-- [학생 메인 뷰] -->
     <div id="student-view" class="hidden flex-col h-screen-dvh w-full bg-[#f4f6f8] relative">
         <header class="bg-white h-[60px] md:h-16 border-b border-slate-200 flex justify-center items-center px-4 shrink-0 sticky top-0 z-40 w-full pt-safe">
             <div class="w-full max-w-5xl flex justify-between items-center">
@@ -201,7 +229,6 @@
                         <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                         <span id="st-noti-dot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
                     </button>
-                    <!-- 💡 로그아웃 연동 수정 (페이지 새로고침) -->
                     <button onclick="app.logout()" class="text-xs md:text-sm font-bold text-slate-500 hover:text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg">로그아웃</button>
                 </div>
             </div>
@@ -263,16 +290,18 @@
                     <div id="st-hw-wrapper" class="space-y-4 md:space-y-5"></div>
                 </div>
 
-                <!-- 💡 외부 테스트 사이트 연동을 위한 학생 IFrame 탭 -->
-                <div id="tab-test" class="tab-content hidden fade-in w-full h-full">
-                    <div id="st-test-iframe-container" class="w-full h-full"></div>
+                <div id="tab-test" class="tab-content hidden fade-in space-y-5 md:space-y-6">
+                    <div class="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-3xl p-6 md:p-8 text-white shadow-md">
+                        <h2 class="text-2xl md:text-3xl font-black">나의 테스트실</h2>
+                        <p class="text-xs md:text-sm text-emerald-50 mt-2">선생님이 배포하신 단어 및 개념 테스트를 응시하세요.</p>
+                    </div>
+                    <div id="st-test-list-container" class="space-y-4"></div>
                 </div>
-                
+
                 <div id="tab-lecture" class="tab-content hidden fade-in space-y-5 md:space-y-6">
                     <div class="bg-[#4176ff] rounded-3xl p-6 md:p-8 text-white shadow-md"><p class="text-xs text-blue-200 mb-2 font-bold" id="st-lec-date">현재 코스 진행중</p><h2 class="text-2xl md:text-3xl font-black" id="st-lec-title">강의명</h2></div>
                     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-4 md:p-5 border-b border-slate-100 bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">강의 및 녹화본 영상 목록</h3></div><ul id="st-lec-list" class="divide-y divide-slate-100"></ul></div>
                 </div>
-                
                 <div id="tab-material" class="tab-content hidden fade-in space-y-4">
                     <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2" id="st-mat-categories"></div>
                     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden"><ul class="divide-y divide-slate-50" id="st-mat-list"></ul></div>
@@ -321,7 +350,6 @@
                 </div>
             </div>
 
-            <!-- 회사 정보 푸터 -->
             <div class="site-footer w-full"></div>
         </main>
 
@@ -337,7 +365,6 @@
         </nav>
     </div>
 
-    <!-- 결제 뷰 모달 -->
     <div id="payment-view" class="hidden fixed inset-0 z-[70] bg-[#f4f6f8] overflow-y-auto slide-up pb-safe flex-col">
         <header class="bg-white h-[60px] md:h-16 border-b border-slate-200 flex justify-center items-center px-4 sticky top-0 z-40 w-full shadow-sm pt-safe shrink-0">
             <div class="w-full max-w-2xl flex justify-between items-center">
@@ -368,12 +395,10 @@
                     </form>
                 </div>
             </div>
-            
             <div class="site-footer w-full bg-[#111]"></div>
         </main>
     </div>
 
-    <!-- 다크모드 강의 플레이어 뷰 -->
     <div id="lecture-player-view" class="hidden fixed inset-0 z-[80] bg-[#0f172a] text-slate-200 flex-col overflow-hidden slide-up pb-safe">
         <div class="h-[60px] md:h-16 border-b border-slate-700 flex items-center px-4 shrink-0 bg-[#1e293b] pt-safe">
             <button onclick="studentApp.closeLecturePlayer()" class="text-slate-400 hover:text-white flex items-center gap-2 font-bold text-sm transition p-2 -ml-2"><span>← 내 강의실</span></button>
@@ -383,7 +408,7 @@
             <div class="flex-1 p-4 lg:p-8 overflow-y-auto no-scrollbar relative">
                 <div class="w-full max-w-5xl mx-auto space-y-4 md:space-y-6">
                     <h2 id="lp-lecture-title" class="text-xl md:text-2xl font-black text-white leading-snug">강의 제목</h2>
-                    <div class="aspect-video bg-black rounded-xl md:rounded-2xl overflow-hidden shadow-2xl relative border border-slate-700" id="lp-video-container"><div id="lp-yt-player" class="w-full h-full"></div></div>
+                    <div class="aspect-video bg-black rounded-xl md:rounded-2xl overflow-hidden shadow-2xl relative border border-slate-700" id="lp-video-container"></div>
                     <div class="bg-[#1e293b] rounded-xl md:rounded-2xl p-5 md:p-6 border border-slate-700 shadow-md">
                         <div class="flex justify-between items-end mb-3"><span class="text-xs md:text-sm font-bold text-slate-400">현재 수강률 (자동측정 중)</span><span class="text-xl md:text-2xl font-black text-blue-400 transition-colors" id="lp-progress-text">0%</span></div>
                         <div class="w-full bg-slate-800 rounded-full h-2.5 md:h-3 mb-3 md:mb-4 overflow-hidden border border-slate-700"><div id="lp-progress-bar" class="bg-blue-500 h-full transition-all duration-1000 ease-linear" style="width: 0%"></div></div>
@@ -398,7 +423,19 @@
         </div>
     </div>
     
-    <!-- [4] 관리자 대시보드 뷰 -->
+    <div id="test-paper-modal" class="hidden fixed inset-0 z-[130] bg-[#f4f6f8] flex-col overflow-hidden slide-up pb-safe">
+        <header class="bg-white h-[60px] md:h-16 border-b border-slate-200 flex items-center px-4 shrink-0 shadow-sm sticky top-0 z-40 pt-safe">
+            <button onclick="studentApp.closeTestPaper()" class="text-slate-400 hover:text-slate-600 font-bold text-sm p-2 -ml-2 shrink-0">✕ 닫기</button>
+            <h1 class="font-black text-base md:text-lg text-[#1a365d] ml-4 flex-1 truncate text-center mr-8" id="tp-title">테스트 제목</h1>
+        </header>
+        <main class="flex-1 overflow-y-auto no-scrollbar w-full pb-20 relative">
+            <div class="max-w-3xl mx-auto w-full p-4 md:p-6 space-y-6" id="tp-questions-container"></div>
+            <div class="max-w-3xl mx-auto w-full px-4 md:px-6 mt-8 mb-10 hidden" id="tp-submit-container">
+                <button onclick="studentApp.submitTestPaper()" class="w-full bg-[#4176ff] text-white font-bold py-4 rounded-2xl shadow-md hover:bg-blue-700 transition text-lg">답안 제출하기</button>
+            </div>
+        </main>
+    </div>
+
     <div id="admin-view" class="hidden flex-col h-screen-dvh w-full bg-[#f4f6f8] relative">
         <header class="bg-[#1a365d] h-[60px] md:h-16 flex justify-center items-center px-4 shrink-0 sticky top-0 z-40 w-full shadow-md pt-safe relative">
             <div id="admin-db-status" class="absolute top-0 left-0 w-full text-center py-0.5 text-[10px] font-bold text-white bg-rose-500 z-50">🔴 로컬 데이터 모드 (기기 간 연동 불가)</div>
@@ -407,13 +444,11 @@
                 <div class="flex items-center gap-2 md:gap-3"><h1 class="font-logo text-xl md:text-2xl font-bold mt-1">studycampus</h1><span class="bg-blue-500 px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold tracking-wider hidden md:inline-block">TEACHER</span></div>
                 <div class="flex items-center gap-4 md:gap-5">
                     <button onclick="app.toggleNoti()" class="relative text-white/80 hover:text-white transition p-1"><svg class="w-6 h-6 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg><span id="ad-noti-dot" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#1a365d]"></span></button>
-                    <!-- 💡 로그아웃 연동 수정 -->
                     <button onclick="app.logout()" class="text-xs md:text-sm font-bold text-white/80 hover:text-white transition bg-white/10 px-3 py-1.5 rounded-lg">로그아웃</button>
                 </div>
             </div>
         </header>
 
-        <!-- 💡 관리자 탭 5개로 세분화 -->
         <div class="bg-white border-b border-slate-200 sticky top-[60px] md:top-16 z-30 shadow-sm shrink-0">
             <div class="max-w-6xl mx-auto flex gap-6 px-4 overflow-x-auto no-scrollbar">
                 <button onclick="adminApp.switchTab('students')" id="ad-tab-btn-students" class="py-3 md:py-3.5 text-xs md:text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition whitespace-nowrap">👨‍🎓 학생/요청 관리</button>
@@ -427,7 +462,6 @@
         <main class="flex-1 overflow-y-auto no-scrollbar p-4 md:p-8 w-full pb-safe">
             <div class="max-w-6xl mx-auto">
                 
-                <!-- 관리자 탭 1: 학생 관리 -->
                 <div id="ad-tab-students" class="space-y-6 md:space-y-8 fade-in">
                     <div class="hidden md:block">
                         <h2 class="text-2xl font-black text-slate-900">학생 통합 관리 시스템</h2>
@@ -473,15 +507,12 @@
                     </div>
                 </div>
 
-                <!-- 관리자 탭 2: 홈페이지 편집 -->
                 <div id="ad-tab-contents" class="hidden space-y-8 md:space-y-12 fade-in pb-10">
                     <div class="hidden md:block"><h2 class="text-2xl font-black text-slate-900">홈페이지 콘텐츠 편집</h2><p class="text-slate-500 mt-1 text-sm">카테고리(페이지)별로 학생 화면에 노출될 콘텐츠를 추가하고 관리합니다.</p></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-10 md:gap-y-12">
-                        <!-- 홈 화면 -->
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">🏠 공통 / 홈 화면 관리</h2>
-                            
                             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 space-y-4">
                                 <h3 class="font-bold text-[#1a365d] text-sm md:text-base border-b border-slate-100 pb-2">⚙️ 자동 주차(WEEK) & 타이틀 설정</h3>
                                 <form onsubmit="adminApp.updateConfig(event)" class="space-y-3">
@@ -490,7 +521,6 @@
                                     <button type="submit" class="w-full bg-[#1a365d] text-white font-bold py-3.5 rounded-xl hover:bg-blue-900 transition text-sm">저장</button>
                                 </form>
                             </div>
-
                             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 space-y-4 border-t-4 border-t-indigo-600">
                                 <h3 class="font-bold text-[#1a365d] text-sm md:text-base border-b border-slate-100 pb-2">📢 신규 공지사항 배포</h3>
                                 <form onsubmit="adminApp.addAnnouncement(event)" class="space-y-3">
@@ -500,17 +530,14 @@
                                     <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition shadow-sm text-sm mt-2">배포하기</button>
                                 </form>
                             </div>
-                            
                             <div class="bg-white rounded-3xl p-4 md:p-5 border border-slate-200 shadow-sm flex flex-col h-[250px]">
                                 <h3 class="font-bold text-slate-800 text-sm mb-3 shrink-0">📢 등록된 공지사항 목록</h3>
                                 <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-anns"></div>
                             </div>
                         </div>
 
-                        <!-- 숙제 화면 -->
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">📝 숙제 화면 관리</h2>
-                            
                             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 space-y-4 border-t-4 border-t-blue-500">
                                 <h3 class="font-bold text-[#1a365d] text-sm md:text-base border-b border-slate-100 pb-2">➕ 신규 과제 배포</h3>
                                 <form onsubmit="adminApp.addHomework(event)" class="space-y-3">
@@ -523,17 +550,14 @@
                                     <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition shadow-sm text-sm mt-2">과제 배포</button>
                                 </form>
                             </div>
-
                             <div class="bg-white rounded-3xl p-4 md:p-5 border border-slate-200 shadow-sm flex flex-col h-[250px]">
                                 <h3 class="font-bold text-slate-800 text-sm mb-3 shrink-0">📋 배포된 숙제 목록</h3>
                                 <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-hws"></div>
                             </div>
                         </div>
 
-                        <!-- 강의 화면 -->
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">📼 강의 화면 관리</h2>
-                            
                             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 space-y-4 border-t-4 border-t-rose-500">
                                 <h3 class="font-bold text-[#1a365d] text-sm md:text-base border-b border-slate-100 pb-2">➕ 강의 영상 배포</h3>
                                 <form onsubmit="adminApp.addLecture(event)" class="space-y-3">
@@ -544,17 +568,14 @@
                                     <button type="submit" class="w-full bg-rose-500 text-white font-bold py-3.5 rounded-xl hover:bg-rose-600 transition shadow-sm text-sm mt-2">영상 등록</button>
                                 </form>
                             </div>
-
                             <div class="bg-white rounded-3xl p-4 md:p-5 border border-slate-200 shadow-sm flex flex-col h-[250px]">
                                 <h3 class="font-bold text-slate-800 text-sm mb-3 shrink-0">📼 배포된 강의 목록</h3>
                                 <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-lecs"></div>
                             </div>
                         </div>
 
-                        <!-- 자료실 화면 -->
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">🗂️ 자료실 화면 관리</h2>
-                            
                             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 space-y-4 border-t-4 border-t-emerald-500">
                                 <h3 class="font-bold text-[#1a365d] text-sm md:text-base border-b border-slate-100 pb-2">📂 카테고리 & 파일 업로드</h3>
                                 <form onsubmit="adminApp.addMatCategory(event)" class="flex gap-2">
@@ -562,7 +583,6 @@
                                     <button type="submit" class="bg-slate-800 text-white font-bold px-4 py-3 rounded-xl hover:bg-slate-900 text-xs md:text-sm transition shadow-sm">추가</button>
                                 </form>
                                 <div id="ad-mat-cat-list" class="flex flex-wrap gap-2 pb-3 border-b border-slate-100 mt-2"></div>
-                                
                                 <form onsubmit="adminApp.addMaterial(event)" class="space-y-3 pt-2">
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">카테고리 선택</label><select id="ad-mat-cat" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-base focus:border-emerald-500 bg-white outline-none text-slate-700"></select></div>
                                     <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">자료 제목</label><input type="text" id="ad-mat-title" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-base focus:border-emerald-500 outline-none"></div>
@@ -570,7 +590,6 @@
                                     <button id="btn-mat-submit" type="submit" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 transition shadow-sm text-sm mt-2">업로드</button>
                                 </form>
                             </div>
-
                             <div class="bg-white rounded-3xl p-4 md:p-5 border border-slate-200 shadow-sm flex flex-col h-[250px]">
                                 <h3 class="font-bold text-slate-800 text-sm mb-3 shrink-0">🗂️ 등록된 자료 목록</h3>
                                 <div class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-xl divide-y divide-slate-100" id="ad-manage-mats"></div>
@@ -579,10 +598,9 @@
                     </div>
                 </div>
 
-                <!-- 💡 [탭 3] 결제 관리 분리 -->
                 <div id="ad-tab-payment" class="hidden space-y-8 md:space-y-12 fade-in pb-10">
                     <div class="hidden md:block">
-                        <h2 class="text-2xl font-black text-slate-900">결제 및 수강권 관리</h2>
+                        <h2 class="text-2xl font-black text-slate-900">💳 결제 및 수강권 관리</h2>
                         <p class="text-slate-500 mt-1 text-sm">결제 환경을 설정하고, 입금 확인 및 수강 연장 요청 내역을 통합하여 관리합니다.</p>
                     </div>
 
@@ -590,20 +608,18 @@
                         <div class="space-y-5 md:space-y-6">
                             <h2 class="text-lg md:text-xl font-black text-slate-800 border-b-2 border-slate-800 pb-2 md:pb-3 flex items-center gap-2">⚙️ 결제 환경 설정</h2>
                             <div class="bg-indigo-50/50 rounded-3xl shadow-sm border border-indigo-100 p-5 md:p-6 space-y-4">
-                                <h3 class="font-bold text-indigo-900 text-sm md:text-base border-b border-indigo-200 pb-2">💳 사이트 링크 및 옵션 추가</h3>
+                                <h3 class="font-bold text-indigo-900 text-sm md:text-base border-b border-indigo-200 pb-2">💳 외부 사이트 링크 및 옵션 4개 설정</h3>
                                 <form onsubmit="adminApp.updatePaymentConfig(event)" class="space-y-3">
                                     <div><label class="block text-xs font-bold text-indigo-700 mb-1 ml-1">외부 결제 사이트 링크 (URL)</label><input type="url" id="ad-pmt-link" placeholder="https://..." class="w-full border border-indigo-200 rounded-xl px-4 py-3 text-base focus:border-indigo-500 outline-none bg-white"></div>
-                                    <div><label class="block text-xs font-bold text-indigo-700 mb-1 ml-1">무통장 입금 계좌 안내</label><input type="text" id="ad-pmt-account" required placeholder="[하나은행] 342-910508-31507" class="w-full border border-indigo-200 rounded-xl px-4 py-3 text-base focus:border-indigo-500 outline-none bg-white"></div>
+                                    <div><label class="block text-xs font-bold text-indigo-700 mb-1 ml-1">무통장 입금 계좌 안내문</label><input type="text" id="ad-pmt-account" required placeholder="[하나은행] 342-910508-31507" class="w-full border border-indigo-200 rounded-xl px-4 py-3 text-base focus:border-indigo-500 outline-none bg-white"></div>
                                     
-                                    <!-- 💡 수강권 옵션 4개로 확장 -->
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 pt-2 border-t border-indigo-100">
                                         <div><label class="block text-[10px] font-bold text-indigo-600 mb-1 ml-1">수강권 옵션 1</label><input type="text" id="ad-pmt-opt1" class="w-full border border-indigo-200 rounded-xl px-3 py-2 text-sm focus:border-indigo-500 outline-none bg-white"></div>
                                         <div><label class="block text-[10px] font-bold text-indigo-600 mb-1 ml-1">수강권 옵션 2</label><input type="text" id="ad-pmt-opt2" class="w-full border border-indigo-200 rounded-xl px-3 py-2 text-sm focus:border-indigo-500 outline-none bg-white"></div>
                                         <div><label class="block text-[10px] font-bold text-indigo-600 mb-1 ml-1">수강권 옵션 3</label><input type="text" id="ad-pmt-opt3" class="w-full border border-indigo-200 rounded-xl px-3 py-2 text-sm focus:border-indigo-500 outline-none bg-white"></div>
                                         <div><label class="block text-[10px] font-bold text-indigo-600 mb-1 ml-1">수강권 옵션 4</label><input type="text" id="ad-pmt-opt4" class="w-full border border-indigo-200 rounded-xl px-3 py-2 text-sm focus:border-indigo-500 outline-none bg-white"></div>
                                     </div>
-
-                                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition text-sm shadow-sm mt-4">설정 저장</button>
+                                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition text-sm shadow-sm mt-4">결제 환경 변경사항 저장</button>
                                 </form>
                             </div>
                         </div>
@@ -617,18 +633,27 @@
                     </div>
                 </div>
 
-                <!-- 💡 [탭 4] 테스트 관리 탭 신설 -->
                 <div id="ad-tab-tests" class="hidden space-y-8 md:space-y-12 fade-in pb-10">
-                    <div class="hidden md:block">
-                        <h2 class="text-2xl font-black text-slate-900">📝 테스트 집중 관리 시스템</h2>
-                        <p class="text-slate-500 mt-1 text-sm">학생들의 오답 및 단어/문법 테스트를 실시간으로 관리하고 피드백합니다.</p>
+                    <div class="flex justify-between items-end">
+                        <div class="hidden md:block">
+                            <h2 class="text-2xl font-black text-slate-900">📝 테스트 집중 관리 시스템</h2>
+                            <p class="text-slate-500 mt-1 text-sm">자체 내장된 시스템으로 학생들에게 실시간 테스트를 배포하고 채점 결과를 확인합니다.</p>
+                        </div>
+                        <button onclick="adminApp.openTestBuilder()" class="w-full md:w-auto bg-blue-600 text-white font-bold px-6 py-3.5 rounded-2xl shadow-md hover:bg-blue-700 transition text-base"> + 새 테스트 만들기</button>
                     </div>
-                    <div class="w-full h-[75vh] bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative">
-                        <div id="ad-test-iframe-container" class="w-full h-full"></div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 h-[500px] flex flex-col">
+                            <h3 class="font-bold text-[#1a365d] text-sm md:text-base mb-4 border-b border-slate-100 pb-2">📂 배포된 테스트 목록</h3>
+                            <div class="flex-1 overflow-y-auto no-scrollbar space-y-3" id="ad-test-list"></div>
+                        </div>
+                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 h-[500px] flex flex-col border-t-4 border-t-emerald-500">
+                            <h3 class="font-bold text-emerald-700 text-sm md:text-base mb-4 border-b border-slate-100 pb-2">🎯 실시간 제출 결과 및 성적표</h3>
+                            <div class="flex-1 overflow-y-auto no-scrollbar space-y-3" id="ad-test-results"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 💡 [탭 5] 사이트 설정 분리 -->
                 <div id="ad-tab-settings" class="hidden space-y-8 md:space-y-12 fade-in pb-10">
                     <div class="hidden md:block">
                         <h2 class="text-2xl font-black text-slate-900">⚙️ 시스템 및 사이트 설정</h2>
@@ -650,7 +675,7 @@
                                         <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">전화번호</label><input type="text" id="ad-comp-phone" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none"></div>
                                         <div><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">이메일</label><input type="text" id="ad-comp-email" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none"></div>
                                         <div class="md:col-span-2"><label class="block text-xs font-bold text-slate-500 mb-1 ml-1">사업자정보 링크</label><input type="text" id="ad-comp-bizlink" placeholder="https://" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none"></div>
-                                        <div class="md:col-span-2"><label class="block text-xs font-bold text-blue-600 mb-1 ml-1">버전 정보 (Version)</label><input type="text" id="ad-comp-version" placeholder="ex) V32.0" class="w-full border border-blue-200 bg-blue-50 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none"></div>
+                                        <div class="md:col-span-2"><label class="block text-xs font-bold text-blue-600 mb-1 ml-1">버전 정보 (Version)</label><input type="text" id="ad-comp-version" placeholder="ex) V33.0" class="w-full border border-blue-200 bg-blue-50 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none"></div>
                                     </div>
                                     <button type="submit" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl hover:bg-slate-900 transition text-sm mt-4 shadow-sm">회사 정보 일괄 업데이트</button>
                                 </form>
@@ -686,15 +711,12 @@
         </main>
     </div>
 
-    <!-- ========================================== -->
-    <!-- [5] 자바스크립트 통합 로직 -->
-    <!-- ========================================== -->
     <script>
         const DB_KEY = 'studycampus_permanent_db'; 
         let isCloudMode = false;
         let cloudData = null;
 
-        // 💡 파이어베이스 연동 설정
+        // 파이어베이스 설정 영역
         const firebaseConfig = {
             apiKey: "AIzaSyBV11GwIAHNtv7eRgKkEA1O5CA5baBCCAI",
             authDomain: "studycampus-449a5.firebaseapp.com",
@@ -710,15 +732,19 @@
             try {
                 firebase.initializeApp(firebaseConfig);
                 isCloudMode = true;
-                console.log("🔥 파이어베이스 클라우드 동기화 모드 활성화됨!");
             } catch(e) { console.error("Firebase 초기화 에러:", e); }
         }
 
         const updateStatusBadge = () => {
+            const el1 = document.getElementById('auth-db-status');
             const el2 = document.getElementById('admin-db-status');
-            const msg = isCloudMode ? "🟢 클라우드 연동 됨 (실시간 동기화 중)" : "🔴 로컬 데이터 모드 (기기 간 연동 불가)";
+            const msg = isCloudMode ? "🟢 클라우드 연동 됨 (실시간 동기화 중)" : "🔴 로컬 데이터 모드 (연동 불가)";
             const cls = isCloudMode ? "bg-emerald-500" : "bg-rose-500";
+            if(el1) { el1.textContent = msg; el1.className = `absolute top-0 left-0 w-full text-center py-1 text-[10px] font-bold text-white ${cls}`; }
             if(el2) { el2.textContent = msg; el2.className = `absolute top-0 left-0 w-full text-center py-0.5 text-[10px] font-bold text-white ${cls} z-50`; }
+            
+            // 로그인 상태에서는 auth 배지는 무시
+            if(DB.getAuth() && el1) el1.style.display = 'none';
         };
 
         const processFileBase64 = (file) => {
@@ -750,39 +776,44 @@
                 return {
                     users: [{ id: 'ijiho853', phone: '01048670953', pw: '0909791hrd*', name: '이지호', role: 'admin', school: '관리자', grade: '선생님' }],
                     config: { startDate: new Date().toISOString().slice(0,10), title: '기출제로원' }, 
-                    companyInfo: { companyName: 'STUDYCAMPUS Co.LTD', serviceName: 'STUDYCAMPUS', ceo: '이지호', bizNum: '-', ecomNum: '-', address: '-', phone: '-', email: '-', bizLink: '-', version: 'V32.0' },
+                    companyInfo: { companyName: 'STUDYCAMPUS Co.LTD', serviceName: 'STUDYCAMPUS', ceo: '이지호', bizNum: '-', ecomNum: '-', address: '-', phone: '-', email: '-', bizLink: '-', version: 'V33.0' },
                     policies: { product: '상세 내용은 업데이트 예정입니다.', terms: '상세 내용은 업데이트 예정입니다.', privacy: '상세 내용은 업데이트 예정입니다.', refund: '결제 수단별 환불 소요 기간이 다를 수 있습니다.' },
                     paymentConfig: { accountInfo: '[하나은행] 342-910508-31507 (예금주: 이*호)', link: '', options: [] },
-                    missions: {}, announcements: [], homeworks: [], lectures: [], materials: [], subs: [], notifications: [], suggestions: [], inquiries: [], extensionRequests: [], materialCategories: ['공지', '주교재', '기타자료'], lectureProgress: {}
+                    missions: {}, announcements: [], homeworks: [], lectures: [], materials: [], subs: [], notifications: [], suggestions: [], inquiries: [], extensionRequests: [], materialCategories: ['공지', '주교재', '기타자료'], lectureProgress: {},
+                    tests: [], testResults: [] // 💡 신규 테스트 데이터 스키마
                 };
             },
             init(callback) {
-                updateStatusBadge();
                 if(isCloudMode) {
                     firebase.database().ref('studycampus_db').on('value', (snapshot) => {
                         const data = snapshot.val();
-                        if(data) { cloudData = data; } else { cloudData = this.initDefaultData(); firebase.database().ref('studycampus_db').set(cloudData); }
+                        if(data) {
+                            cloudData = data;
+                            if(!cloudData.tests) cloudData.tests = [];
+                            if(!cloudData.testResults) cloudData.testResults = [];
+                        } else {
+                            cloudData = this.initDefaultData();
+                            firebase.database().ref('studycampus_db').set(cloudData);
+                        }
                         
                         const user = this.getAuth();
                         if(user) {
                             if(app && typeof app.updateNotiDot === 'function') app.updateNotiDot(user);
-                            if(user.role === 'admin' && typeof adminApp !== 'undefined') adminApp.realtimeSync();
-                            // 💡 학생 뷰도 Firebase 업데이트 시 실시간 동기화
-                            if(user.role === 'student' && typeof studentApp !== 'undefined') studentApp.realtimeSync();
+                            if(user.role === 'admin' && adminApp && typeof adminApp.realtimeSync === 'function') adminApp.realtimeSync();
+                            if(user.role === 'student' && studentApp && typeof studentApp.realtimeSync === 'function') studentApp.realtimeSync();
                         }
                         if(callback) { callback(); callback = null; }
                     });
                 } else {
                     let dataStr = localStorage.getItem(DB_KEY);
                     if (!dataStr) { localStorage.setItem(DB_KEY, JSON.stringify(this.initDefaultData())); } 
-                    
                     window.addEventListener('storage', (e) => {
                         if(e.key === DB_KEY) {
                             const user = this.getAuth();
                             if(user) {
                                 if(app && typeof app.updateNotiDot === 'function') app.updateNotiDot(user);
-                                if(user.role === 'admin' && typeof adminApp !== 'undefined') adminApp.realtimeSync();
-                                if(user.role === 'student' && typeof studentApp !== 'undefined') studentApp.realtimeSync();
+                                if(user.role === 'admin' && adminApp && typeof adminApp.realtimeSync === 'function') adminApp.realtimeSync();
+                                if(user.role === 'student' && studentApp && typeof studentApp.realtimeSync === 'function') studentApp.realtimeSync();
                             }
                         }
                     });
@@ -795,7 +826,7 @@
                 if(!raw) raw = this.initDefaultData();
                 const def = this.initDefaultData();
                 Object.keys(def).forEach(k => { if (raw[k] === undefined || raw[k] === null) raw[k] = def[k]; });
-                if(raw.companyInfo && !raw.companyInfo.version) raw.companyInfo.version = 'V32.0';
+                if(raw.companyInfo && !raw.companyInfo.version) raw.companyInfo.version = 'V33.0';
                 return raw; 
             },
             
@@ -825,7 +856,7 @@
         };
 
         const app = {
-            init() { DB.init(() => { this.route(); }); },
+            init() { DB.init(() => { this.route(); updateStatusBadge(); }); },
             
             renderFooter() {
                 const dbData = DB.getData(); const info = dbData.companyInfo;
@@ -899,12 +930,11 @@
                 e.preventDefault(); const id = document.getElementById('reg-id').value.trim(); const pw = document.getElementById('reg-pw').value; const pwCheck = document.getElementById('reg-pw-check').value;
                 if(pw !== pwCheck) return alert("비밀번호가 일치하지 않습니다."); let dbData = DB.getData(); if(dbData.users.find(u => u.id === id)) return alert("이미 등록된 아이디입니다.");
                 const newUser = { id, pw, role: 'student', xp: 0, name: document.getElementById('reg-name').value.trim(), phone: document.getElementById('reg-phone').value.trim(), school: document.getElementById('reg-school').value.trim(), grade: document.getElementById('reg-grade').value, teacher: '', expireDate: '' };
-                dbData.users.push(newUser); if(!dbData.missions) dbData.missions = {}; dbData.missions[id] = [false, false, false]; DB.setData(dbData);
+                dbData.users.push(newUser); dbData.missions[id] = [false, false, false]; DB.setData(dbData);
                 this.addNotification('admin', '새 학생 가입', `${newUser.name} 학생이 새로 가입했습니다.`); alert("회원가입 완료! 로그인하세요."); document.getElementById('signup-form').reset(); authUI.toggleMode('login');
             },
             login(e) { e.preventDefault(); const id = document.getElementById('login-id').value.trim(); const pw = document.getElementById('login-pw').value; const dbData = DB.getData(); const user = dbData.users.find(u => (u.id === id || u.phone === id) && u.pw === pw); if(user) { DB.setAuth(user); document.getElementById('login-form').reset(); this.route(); } else alert("정보가 일치하지 않습니다."); },
             
-            // 💡 [핵심 1] 로그아웃 시 깔끔하게 전체 캐시 날리고 창 리로드 (오류 방지)
             logout() { DB.clearAuth(); location.reload(); },
 
             route() {
@@ -915,8 +945,15 @@
                 });
                 this.renderFooter();
 
-                if (!user) { document.getElementById('auth-view').classList.remove('hidden'); } 
+                if (!user) { 
+                    document.getElementById('auth-view').classList.remove('hidden');
+                    const authBadge = document.getElementById('auth-db-status');
+                    if(authBadge) authBadge.style.display = 'block';
+                } 
                 else {
+                    const authBadge = document.getElementById('auth-db-status');
+                    if(authBadge) authBadge.style.display = 'none';
+
                     this.updateNotiDot(user); 
                     if (user.role === 'admin') {
                         document.getElementById('admin-view').classList.remove('hidden');
@@ -931,8 +968,11 @@
             }
         };
 
+        // =====================================
+        // STUDENT APP 로직 (테스트 포함)
+        // =====================================
         const studentApp = {
-            currentUser: null, progressInterval: null, currentYtPlayer: null, currentLecId: null, currentViewWeek: 1,
+            currentUser: null, progressInterval: null, currentYtPlayer: null, currentLecId: null, currentViewWeek: 1, currentTakingTest: null,
             initData(user) {
                 this.currentUser = user; const dbData = DB.getData(); const freshUser = dbData.users.find(u => u.id === user.id); if(freshUser) { this.currentUser = freshUser; DB.setAuth(freshUser); }
                 const unBanner = document.getElementById('st-unassigned-banner');
@@ -948,18 +988,16 @@
                 document.getElementById('st-hw-title').textContent = dbData.config.title; document.getElementById('st-lec-title').textContent = dbData.config.title;
                 document.getElementById('my-name-edit').value = this.currentUser.name; document.getElementById('my-school-edit').value = this.currentUser.school;
 
-                this.updateXP(0); 
-                this.realtimeSync(); // 💡 초기화 시 렌더링
-                this.switchTab('home');
+                this.updateXP(0); this.realtimeSync(); this.switchTab('home');
             },
             
-            // 💡 [핵심 2] 학생용 실시간 동기화 함수
             realtimeSync() {
                 if(!this.currentUser) return;
                 this.renderAnnouncements(); 
                 this.renderHomeworks(); 
                 this.renderLectures(); 
-                this.renderMaterials(); 
+                this.renderMaterials();
+                this.renderTests(); // 💡 테스트 렌더링
             },
 
             isSubscribed() { if(!this.currentUser.expireDate) return false; const ext = new Date(this.currentUser.expireDate); const now = new Date(); ext.setHours(23, 59, 59, 999); return ext >= now; },
@@ -983,7 +1021,14 @@
                 catch(err) { alert("이미지 용량이 큽니다. 사진 크기를 줄여주세요."); } finally { btn.textContent = "요청서 제출하기"; btn.disabled = false; }
             },
 
-            updateXP(amount) { let dbData = DB.getData(); let myIdx = dbData.users.findIndex(u => u.id === this.currentUser.id); if(myIdx > -1) { dbData.users[myIdx].xp += amount; this.currentUser.xp = dbData.users[myIdx].xp; DB.setData(dbData); } document.getElementById('st-xp').textContent = `${this.currentUser.xp} XP`; },
+            updateXP(amount) { 
+                let dbData = DB.getData(); let myIdx = dbData.users.findIndex(u => u.id === this.currentUser.id); 
+                if(myIdx > -1) { 
+                    if(amount > 0) { dbData.users[myIdx].xp += amount; DB.setData(dbData); }
+                    this.currentUser.xp = dbData.users[myIdx].xp; 
+                } 
+                document.getElementById('st-xp').textContent = `${this.currentUser.xp} XP`; 
+            },
             renderAnnouncements() { const dbData = DB.getData(); const container = document.getElementById('st-announcement-container'); container.innerHTML = ''; const myAnns = dbData.announcements.filter(a => a.target === 'all' || a.target === this.currentUser.id); if(myAnns.length > 0) { const latest = myAnns[0]; container.innerHTML = `<div class="bg-indigo-600 text-white rounded-[24px] p-6 md:p-8 shadow-md relative overflow-hidden mb-6 bounce-in"><div class="absolute right-0 top-0 opacity-10 text-8xl -mt-4 -mr-4">📢</div><div class="relative z-10"><span class="bg-indigo-800 text-indigo-100 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-lg mb-3 inline-block tracking-wider">선생님 알림</span><h3 class="font-black text-xl md:text-2xl leading-tight mb-3">${latest.title}</h3><p class="text-indigo-100 text-sm md:text-base mb-4 leading-relaxed whitespace-pre-line">${latest.content}</p><p class="text-indigo-300 text-xs font-bold">${latest.date}</p></div></div>`; } },
             async submitHW(hwId) {
                 const fileInput = document.getElementById(`hw-files-${hwId}`); if(fileInput.files.length === 0) { if(!confirm("첨부파일 없이 과제를 제출합니까?")) return; } const btn = event.target; btn.textContent = "업로드 중..."; btn.disabled = true; let fileObjs = [];
@@ -994,7 +1039,6 @@
                 } else { btn.textContent = "과제 제출하기"; btn.disabled = false; }
             },
 
-            // 💡 [핵심 3] 안전하고 스마트한 숙제 주차/날짜 계산
             calculateCurrentWeek() { 
                 const dbData = DB.getData(); if (!dbData.config.startDate) return 1; 
                 const start = new Date(dbData.config.startDate); start.setDate(start.getDate() - start.getDay()); start.setHours(0,0,0,0); 
@@ -1020,10 +1064,8 @@
                     if(!hw.date || !hw.date.includes('/')) return true; 
                     const [m, d] = hw.date.split('/'); 
                     let hwDate = new Date(baseYear, parseInt(m)-1, parseInt(d)); 
-                    // 스마트 연도 보정 (시작일 기준 ±180일 내외 파악)
                     if (hwDate.getTime() < baseDate.getTime() - 1000*60*60*24*180) hwDate.setFullYear(baseYear + 1);
                     else if (hwDate.getTime() > baseDate.getTime() + 1000*60*60*24*180) hwDate.setFullYear(baseYear - 1);
-                    
                     return hwDate >= baseDate && hwDate <= endDate; 
                 });
                 return { rangeStr, weekHws };
@@ -1034,11 +1076,30 @@
                 let totalTasks = myHomeworks.length; let completedTasks = 0;
                 myHomeworks.forEach(hw => { const sub = dbData.subs.find(s => s.hwId === hw.id && s.userId === this.currentUser.id); if(sub) completedTasks++; });
                 let progressPercent = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
-                tabHw.innerHTML = `<div class="bg-gradient-to-r from-blue-500 to-[#4176ff] rounded-2xl md:rounded-3xl p-5 md:p-6 text-white shadow-md relative overflow-hidden"><div class="flex justify-between items-center mb-4 relative z-10"><button onclick="studentApp.changeWeek(-1)" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition text-lg font-bold backdrop-blur-sm">&lt;</button><div class="text-center flex flex-col items-center"><h2 class="text-xl md:text-2xl font-black">${this.currentViewWeek}주차</h2><p class="text-[10px] md:text-xs text-blue-100 mt-1 font-medium bg-black/10 px-2.5 py-1 rounded-full">${weekData.rangeStr}</p></div><button onclick="studentApp.changeWeek(1)" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition text-lg font-bold backdrop-blur-sm">&gt;</button></div><div class="relative z-10 mt-2"><div class="flex justify-between text-[10px] md:text-xs font-bold mb-1.5 opacity-90"><span>완료 ${completedTasks}/${totalTasks}</span><span>${progressPercent}%</span></div><div class="w-full bg-blue-900/40 rounded-full h-1.5 md:h-2 overflow-hidden backdrop-blur-sm"><div class="bg-[#00e676] h-full transition-all duration-500 rounded-full shadow-[0_0_8px_#00e676]" style="width: ${progressPercent}%;"></div></div></div></div><div class="bg-red-50/50 border border-red-100 rounded-2xl p-4 md:p-5 shadow-sm"><p class="text-[11px] md:text-xs text-slate-600 leading-relaxed font-medium">숙제 제출 기한: 당일 저녁 12시<br><span class="text-orange-600">⚠️ 늦어지는 경우 사유+인증 필요</span><br><span class="text-orange-600">⚠️ 미제출 2회 경고</span></p></div><div id="st-hw-wrapper" class="space-y-4 md:space-y-5"></div>`;
+
+                tabHw.innerHTML = `
+                    <div class="bg-gradient-to-r from-blue-500 to-[#4176ff] rounded-2xl md:rounded-3xl p-5 md:p-6 text-white shadow-md relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-4 relative z-10">
+                            <button onclick="studentApp.changeWeek(-1)" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition text-lg font-bold backdrop-blur-sm">&lt;</button>
+                            <div class="text-center flex flex-col items-center"><h2 class="text-xl md:text-2xl font-black">${this.currentViewWeek}주차</h2><p class="text-[10px] md:text-xs text-blue-100 mt-1 font-medium bg-black/10 px-2.5 py-1 rounded-full">${weekData.rangeStr}</p></div>
+                            <button onclick="studentApp.changeWeek(1)" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition text-lg font-bold backdrop-blur-sm">&gt;</button>
+                        </div>
+                        <div class="relative z-10 mt-2">
+                            <div class="flex justify-between text-[10px] md:text-xs font-bold mb-1.5 opacity-90"><span>완료 ${completedTasks}/${totalTasks}</span><span>${progressPercent}%</span></div>
+                            <div class="w-full bg-blue-900/40 rounded-full h-1.5 md:h-2 overflow-hidden backdrop-blur-sm"><div class="bg-[#00e676] h-full transition-all duration-500 rounded-full shadow-[0_0_8px_#00e676]" style="width: ${progressPercent}%;"></div></div>
+                        </div>
+                    </div>
+                    <div class="bg-red-50/50 border border-red-100 rounded-2xl p-4 md:p-5 shadow-sm"><p class="text-[11px] md:text-xs text-slate-600 leading-relaxed font-medium">숙제 제출 기한: 당일 저녁 12시<br><span class="text-orange-600">⚠️ 늦어지는 경우 사유+인증 필요</span><br><span class="text-orange-600">⚠️ 미제출 2회 경고</span></p></div>
+                    <div id="st-hw-wrapper" class="space-y-4 md:space-y-5"></div>
+                `;
+
                 const wrapper = document.getElementById('st-hw-wrapper');
                 if(myHomeworks.length === 0) { wrapper.innerHTML = `<div class="p-10 text-center text-slate-400 font-bold bg-white rounded-2xl border border-slate-200">😌 이 주차에는 배포된 과제가 없습니다.</div>`; return; }
-                const groupedHw = {}; myHomeworks.forEach(hw => { const key = `${hw.day}_${hw.date}`; if(!groupedHw[key]) groupedHw[key] = []; groupedHw[key].push(hw); });
+
+                const groupedHw = {};
+                myHomeworks.forEach(hw => { const key = `${hw.day}_${hw.date}`; if(!groupedHw[key]) groupedHw[key] = []; groupedHw[key].push(hw); });
                 const today = new Date(); const todayStr = `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+
                 for(let key in groupedHw) {
                     const [day, date] = key.split('_'); const tasks = groupedHw[key]; let dayTasksCompleted = 0; let tasksHtml = '';
                     tasks.forEach(hw => {
@@ -1047,14 +1108,162 @@
                             dayTasksCompleted++; const statusText = sub.checked ? '✅ 채점 완료' : '확인 대기중'; const statusClass = sub.checked ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600';
                             let filesHtml = ''; if(sub.files && sub.files.length > 0) { filesHtml = `<div class="mt-2 flex flex-wrap gap-1">` + sub.files.map((f, idx) => `<button onclick="app.viewFile('hw', '${this.currentUser.id}_${hw.id}', ${idx})" class="text-[11px] text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition border border-blue-100">📎 ${typeof f === 'string' ? f : f.name}</button>`).join('') + `</div>`; }
                             content = `<div class="p-4 md:p-5 bg-white flex flex-col md:flex-row md:justify-between md:items-center gap-3"><div class="flex flex-col"><span class="text-sm font-bold text-slate-800">${hw.title}</span>${filesHtml}</div><div class="text-right shrink-0"><span class="${statusClass} px-2.5 py-1 rounded-md text-[11px] font-bold shadow-sm">${statusText}</span></div></div>`;
-                        } else { content = `<div class="p-4 md:p-5 bg-white"><p class="text-sm font-bold text-slate-800 mb-3">${hw.title}</p><div class="mb-3 p-3 border border-dashed border-blue-200 bg-blue-50/20 rounded-xl"><label class="block text-[11px] font-bold text-slate-500 mb-2">사진/파일 첨부</label><input type="file" id="hw-files-${hw.id}" multiple class="w-full text-[11px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-bold file:bg-blue-100 file:text-blue-700 cursor-pointer"/></div><button onclick="studentApp.submitHW(${hw.id})" class="w-full bg-[#4176ff] text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition shadow-sm text-xs md:text-sm">과제 제출하기</button></div>`; }
+                        } else {
+                            content = `<div class="p-4 md:p-5 bg-white"><p class="text-sm font-bold text-slate-800 mb-3">${hw.title}</p><div class="mb-3 p-3 border border-dashed border-blue-200 bg-blue-50/20 rounded-xl"><label class="block text-[11px] font-bold text-slate-500 mb-2">사진/파일 첨부</label><input type="file" id="hw-files-${hw.id}" multiple class="w-full text-[11px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-bold file:bg-blue-100 file:text-blue-700 cursor-pointer"/></div><button onclick="studentApp.submitHW(${hw.id})" class="w-full bg-[#4176ff] text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition shadow-sm text-xs md:text-sm">과제 제출하기</button></div>`;
+                        }
                         tasksHtml += `<div class="border-b border-slate-50 last:border-0">${content}</div>`;
                     });
+
                     const isAllDone = dayTasksCompleted === tasks.length; const isToday = date === todayStr;
                     const iconHtml = isAllDone ? `<div class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm text-lg border border-emerald-100">✓</div>` : `<div class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#1a365d] shadow-sm"><span class="text-xs md:text-sm font-black">${day}</span></div>`;
                     const todayBadge = isToday ? `<span class="bg-blue-100 text-blue-600 text-[9px] font-black px-1.5 py-0.5 rounded ml-1">오늘</span>` : '';
-                    wrapper.innerHTML += `<div class="bg-white rounded-[20px] shadow-sm border border-slate-200 overflow-hidden mb-5"><div class="p-4 flex items-center justify-between bg-white border-b border-slate-100"><div class="flex items-center gap-3 md:gap-4">${iconHtml}<div><p class="font-bold text-slate-800 text-sm md:text-base flex items-center">${day}요일 ${todayBadge}</p><p class="text-[10px] md:text-xs text-slate-400 mt-0.5">${date}</p></div></div><div class="flex items-center gap-2"><span class="text-[10px] md:text-xs font-bold ${isAllDone ? 'text-emerald-500' : 'text-slate-400'}">${dayTasksCompleted}/${tasks.length}</span><span class="text-slate-300 text-xs">▼</span></div></div><div class="divide-y divide-slate-50 bg-slate-50/30">${tasksHtml}</div></div>`;
+
+                    wrapper.innerHTML += `
+                        <div class="bg-white rounded-[20px] shadow-sm border border-slate-200 overflow-hidden mb-5">
+                            <div class="p-4 flex items-center justify-between bg-white border-b border-slate-100">
+                                <div class="flex items-center gap-3 md:gap-4">${iconHtml}<div><p class="font-bold text-slate-800 text-sm md:text-base flex items-center">${day}요일 ${todayBadge}</p><p class="text-[10px] md:text-xs text-slate-400 mt-0.5">${date}</p></div></div>
+                                <div class="flex items-center gap-2"><span class="text-[10px] md:text-xs font-bold ${isAllDone ? 'text-emerald-500' : 'text-slate-400'}">${dayTasksCompleted}/${tasks.length}</span><span class="text-slate-300 text-xs">▼</span></div>
+                            </div>
+                            <div class="divide-y divide-slate-50 bg-slate-50/30">${tasksHtml}</div>
+                        </div>
+                    `;
                 }
+            },
+
+            // 💡 [핵심] 학생 테스트 렌더링 및 시험 응시 로직
+            renderTests() {
+                const dbData = DB.getData();
+                const container = document.getElementById('st-test-list-container');
+                container.innerHTML = '';
+                
+                const myTests = dbData.tests.filter(t => t.target === 'all' || t.target === this.currentUser.id);
+                if(myTests.length === 0) {
+                    container.innerHTML = `<div class="bg-white rounded-3xl p-10 text-center text-slate-400 font-bold border border-slate-200 shadow-sm text-sm">진행 중인 테스트가 없습니다.</div>`;
+                    return;
+                }
+
+                myTests.reverse().forEach(test => {
+                    const result = dbData.testResults.find(r => r.testId === test.id && r.userId === this.currentUser.id);
+                    let statusHtml = '';
+                    let actionHtml = '';
+
+                    if(result) {
+                        statusHtml = `<span class="bg-emerald-100 text-emerald-700 text-[10px] px-2.5 py-1 rounded-full font-bold shadow-sm">제출 완료</span>`;
+                        actionHtml = `<div class="text-right"><p class="text-[10px] text-slate-400 mb-1">내 점수</p><p class="text-xl md:text-2xl font-black text-emerald-600">${result.score}점</p></div>`;
+                    } else {
+                        statusHtml = `<span class="bg-rose-100 text-rose-600 text-[10px] px-2.5 py-1 rounded-full font-bold shadow-sm">미응시</span>`;
+                        actionHtml = `<button onclick="studentApp.openTestPaper(${test.id})" class="bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-slate-900 transition shadow-sm">시험 보기</button>`;
+                    }
+
+                    container.innerHTML += `
+                        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex justify-between items-center gap-4">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1.5">${statusHtml}<span class="text-[10px] text-slate-400">${test.date}</span></div>
+                                <h3 class="font-bold text-slate-800 text-sm md:text-base">${test.title}</h3>
+                                <p class="text-[11px] text-slate-500 mt-1">총 ${test.questions.length}문항</p>
+                            </div>
+                            <div class="shrink-0">${actionHtml}</div>
+                        </div>
+                    `;
+                });
+            },
+
+            openTestPaper(testId) {
+                const dbData = DB.getData();
+                const test = dbData.tests.find(t => t.id === testId);
+                if(!test) return;
+                
+                this.currentTakingTest = test;
+                document.getElementById('tp-title').textContent = test.title;
+                
+                const qContainer = document.getElementById('tp-questions-container');
+                qContainer.innerHTML = '';
+                
+                test.questions.forEach((q, idx) => {
+                    let optsHtml = '';
+                    q.options.forEach((opt, optIdx) => {
+                        optsHtml += `
+                            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-100 hover:bg-blue-50/50 transition cursor-pointer">
+                                <input type="radio" name="q_${idx}" value="${optIdx + 1}" class="test-radio">
+                                <span class="text-sm text-slate-700 leading-snug pt-0.5">${opt}</span>
+                            </label>
+                        `;
+                    });
+
+                    qContainer.innerHTML += `
+                        <div class="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-slate-200">
+                            <h4 class="font-black text-slate-800 mb-4 text-base md:text-lg"><span class="text-blue-600 mr-1">${idx + 1}.</span> ${q.question}</h4>
+                            <div class="space-y-2 flex flex-col">${optsHtml}</div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('tp-submit-container').classList.remove('hidden');
+                document.getElementById('student-view').classList.add('hidden');
+                document.getElementById('test-paper-modal').classList.remove('hidden');
+                document.getElementById('test-paper-modal').classList.add('flex');
+            },
+
+            closeTestPaper() {
+                if(confirm("시험을 중단하시겠습니까? 작성한 답안은 저장되지 않습니다.")) {
+                    this.currentTakingTest = null;
+                    document.getElementById('test-paper-modal').classList.add('hidden');
+                    document.getElementById('test-paper-modal').classList.remove('flex');
+                    document.getElementById('student-view').classList.remove('hidden');
+                }
+            },
+
+            submitTestPaper() {
+                const test = this.currentTakingTest;
+                if(!test) return;
+
+                let userAnswers = [];
+                let correctCount = 0;
+                let isAllAnswered = true;
+
+                test.questions.forEach((q, idx) => {
+                    const selected = document.querySelector(`input[name="q_${idx}"]:checked`);
+                    if(!selected) { isAllAnswered = false; }
+                    else {
+                        const ansVal = parseInt(selected.value);
+                        userAnswers.push(ansVal);
+                        if(ansVal === parseInt(q.ans)) correctCount++;
+                    }
+                });
+
+                if(!isAllAnswered) {
+                    alert("답하지 않은 문항이 있습니다. 모든 문제를 풀어주세요!");
+                    return;
+                }
+
+                if(!confirm("답안을 최종 제출하시겠습니까? 제출 후에는 수정할 수 없습니다.")) return;
+
+                const score = Math.round((correctCount / test.questions.length) * 100);
+                
+                let dbData = DB.getData();
+                dbData.testResults.push({
+                    id: Date.now(),
+                    testId: test.id,
+                    userId: this.currentUser.id,
+                    userName: this.currentUser.name,
+                    score: score,
+                    total: test.questions.length,
+                    correct: correctCount,
+                    answers: userAnswers,
+                    date: new Date().toLocaleString()
+                });
+
+                DB.setData(dbData);
+                this.updateXP(score); // 보상 XP 지급
+                app.addNotification('admin', '테스트 제출 알림', `${this.currentUser.name} 학생이 [${test.title}] 테스트를 제출했습니다. (${score}점)`);
+                
+                alert(`수고하셨습니다! \n총점: ${score}점 (${correctCount}/${test.questions.length})\n결과가 선생님께 전송되었습니다.`);
+                
+                this.currentTakingTest = null;
+                document.getElementById('test-paper-modal').classList.add('hidden');
+                document.getElementById('test-paper-modal').classList.remove('flex');
+                document.getElementById('student-view').classList.remove('hidden');
+                this.realtimeSync();
             },
 
             getYouTubeId(url) { if(!url) return null; const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/); return match ? match[1] : null; },
@@ -1104,30 +1313,10 @@
             sendSuggestion(e) { e.preventDefault(); let dbData = DB.getData(); dbData.suggestions.push({ studentName: this.currentUser.name, phone: this.currentUser.phone, content: document.getElementById('sugg-content').value, extra: document.getElementById('sugg-extra').value, date: new Date().toLocaleString() }); DB.setData(dbData); app.addNotification('admin', '학생 제안 접수', `${this.currentUser.name} 학생 제안 수신.`); alert("건의사항 전송 완료."); e.target.reset(); },
             sendInquiry(e) { e.preventDefault(); let dbData = DB.getData(); dbData.inquiries.push({ id: Date.now(), studentName: this.currentUser.name, phone: this.currentUser.phone, type: document.getElementById('inq-type').value, content: document.getElementById('inq-content').value, date: new Date().toLocaleString() }); DB.setData(dbData); app.addNotification('admin', '1:1 문의 접수', `${this.currentUser.name} 학생 문의 접수됨.`); alert("문의 접수 완료."); e.target.reset(); },
             withdraw() { if(confirm("정말 탈퇴하시겠습니까? 데이터가 영구 파기됩니다.")) { let dbData = DB.getData(); dbData.users = dbData.users.filter(u => u.id !== this.currentUser.id); delete dbData.missions[this.currentUser.id]; dbData.subs = dbData.subs.filter(s => s.userId !== this.currentUser.id); DB.setData(dbData); app.logout(); } },
-            
-            // 💡 [핵심 4] 학생 탭 스위치 및 외부 테스트 사이트 연동
             switchTab(tabId) {
-                const restrictedTabs = ['homework', 'test', 'lecture', 'material']; 
-                const hasAccess = this.isSubscribed(); 
-                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-                
-                if(restrictedTabs.includes(tabId) && !hasAccess) { 
-                    document.getElementById('restricted-view').classList.remove('hidden'); 
-                    document.getElementById('restricted-view').classList.add('flex'); 
-                } else { 
-                    document.getElementById('restricted-view').classList.add('hidden'); 
-                    document.getElementById('restricted-view').classList.remove('flex'); 
-                    document.getElementById(`tab-${tabId}`).classList.remove('hidden'); 
-
-                    // 💡 테스트 탭 열 때 IFrame 주입
-                    if (tabId === 'test') {
-                        const testContainer = document.getElementById('st-test-iframe-container');
-                        if (testContainer.innerHTML === '') {
-                            const encName = encodeURIComponent(this.currentUser.name);
-                            testContainer.innerHTML = `<iframe src="https://naesinfit-tests.vercel.app/?role=student&uid=${this.currentUser.id}&name=${encName}" class="w-full h-[75vh] border-0 rounded-3xl shadow-sm bg-white" allow="autoplay; fullscreen"></iframe>`;
-                        }
-                    }
-                }
+                const restrictedTabs = ['homework', 'test', 'lecture', 'material']; const hasAccess = this.isSubscribed(); document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+                if(restrictedTabs.includes(tabId) && !hasAccess) { document.getElementById('restricted-view').classList.remove('hidden'); document.getElementById('restricted-view').classList.add('flex'); } 
+                else { document.getElementById('restricted-view').classList.add('hidden'); document.getElementById('restricted-view').classList.remove('flex'); document.getElementById(`tab-${tabId}`).classList.remove('hidden'); }
                 const navBtns = document.querySelectorAll('.nav-btn'); navBtns.forEach(btn => { btn.classList.remove('text-[#4176ff]'); btn.classList.add('text-slate-400'); const svg = btn.querySelector('svg'); if(svg.getAttribute('fill') === 'currentColor') { svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor'); svg.setAttribute('stroke-width', '2'); } });
                 const activeBtn = event.currentTarget; activeBtn.classList.remove('text-slate-400'); activeBtn.classList.add('text-[#4176ff]'); const activeSvg = activeBtn.querySelector('svg'); activeSvg.setAttribute('fill', 'currentColor'); activeSvg.removeAttribute('stroke');
             }
@@ -1135,7 +1324,128 @@
 
         const adminApp = {
             currentTab: 'students',
+            builderQuestions: [],
             
+            // 💡 [핵심] 테스트 출제 모달 및 컨트롤 로직
+            openTestBuilder() {
+                this.builderQuestions = [{ question: '', options: ['', '', '', ''], ans: '1' }];
+                document.getElementById('tb-title').value = '';
+                document.getElementById('test-builder-modal').classList.remove('hidden');
+                this.renderBuilderQuestions();
+            },
+            closeTestBuilder() { document.getElementById('test-builder-modal').classList.add('hidden'); },
+            addTestQuestion() {
+                this.builderQuestions.push({ question: '', options: ['', '', '', ''], ans: '1' });
+                this.renderBuilderQuestions();
+            },
+            removeTestQuestion(idx) {
+                if(this.builderQuestions.length <= 1) return alert("최소 1개의 질문은 있어야 합니다.");
+                this.builderQuestions.splice(idx, 1);
+                this.renderBuilderQuestions();
+            },
+            renderBuilderQuestions() {
+                const container = document.getElementById('tb-questions-container');
+                document.getElementById('tb-q-count').textContent = this.builderQuestions.length;
+                container.innerHTML = '';
+                this.builderQuestions.forEach((q, idx) => {
+                    container.innerHTML += `
+                        <div class="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm relative transition">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-black text-blue-600 bg-blue-50 px-2 py-1 rounded">Q${idx + 1}</span>
+                                <button type="button" onclick="adminApp.removeTestQuestion(${idx})" class="text-xs text-rose-500 font-bold hover:underline">삭제</button>
+                            </div>
+                            <input type="text" placeholder="질문을 입력하세요 (ex: 다음 중 옳은 것은?)" value="${q.question}" onchange="adminApp.updateBuilderQ(${idx}, 'q', this.value)" class="w-full border border-slate-200 rounded-xl p-3 mb-3 text-sm focus:border-blue-500 outline-none font-bold">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+                                <input type="text" placeholder="1번 보기" value="${q.options[0]}" onchange="adminApp.updateBuilderQ(${idx}, 'opt', this.value, 0)" class="border border-slate-200 rounded-lg p-2.5 text-sm focus:border-blue-500 outline-none">
+                                <input type="text" placeholder="2번 보기" value="${q.options[1]}" onchange="adminApp.updateBuilderQ(${idx}, 'opt', this.value, 1)" class="border border-slate-200 rounded-lg p-2.5 text-sm focus:border-blue-500 outline-none">
+                                <input type="text" placeholder="3번 보기" value="${q.options[2]}" onchange="adminApp.updateBuilderQ(${idx}, 'opt', this.value, 2)" class="border border-slate-200 rounded-lg p-2.5 text-sm focus:border-blue-500 outline-none">
+                                <input type="text" placeholder="4번 보기" value="${q.options[3]}" onchange="adminApp.updateBuilderQ(${idx}, 'opt', this.value, 3)" class="border border-slate-200 rounded-lg p-2.5 text-sm focus:border-blue-500 outline-none">
+                            </div>
+                            <select onchange="adminApp.updateBuilderQ(${idx}, 'ans', this.value)" class="w-full border border-slate-200 rounded-xl p-3 text-sm text-blue-700 font-bold bg-blue-50 outline-none">
+                                <option value="1" ${q.ans==='1'?'selected':''}>정답: 1번 보기</option>
+                                <option value="2" ${q.ans==='2'?'selected':''}>정답: 2번 보기</option>
+                                <option value="3" ${q.ans==='3'?'selected':''}>정답: 3번 보기</option>
+                                <option value="4" ${q.ans==='4'?'selected':''}>정답: 4번 보기</option>
+                            </select>
+                        </div>
+                    `;
+                });
+            },
+            updateBuilderQ(idx, type, val, optIdx = null) {
+                if(type === 'q') this.builderQuestions[idx].question = val;
+                else if(type === 'ans') this.builderQuestions[idx].ans = val;
+                else if(type === 'opt') this.builderQuestions[idx].options[optIdx] = val;
+            },
+            saveTest() {
+                const title = document.getElementById('tb-title').value.trim();
+                const target = document.getElementById('tb-target').value;
+                if(!title) return alert("테스트 제목을 입력해주세요.");
+                
+                // 유효성 검사
+                let isValid = true;
+                this.builderQuestions.forEach(q => { if(!q.question || q.options.some(o => !o.trim())) isValid = false; });
+                if(!isValid) return alert("비어있는 질문이나 보기가 있습니다. 모두 입력해주세요.");
+
+                let dbData = DB.getData();
+                dbData.tests.push({
+                    id: Date.now(),
+                    title: title,
+                    target: target,
+                    questions: this.builderQuestions,
+                    date: new Date().toLocaleDateString()
+                });
+                
+                DB.setData(dbData);
+                app.addNotification(target, '📝 새 테스트 도착', `[${title}] 테스트가 배포되었습니다. 응시해주세요.`);
+                alert("테스트가 성공적으로 배포되었습니다!");
+                this.closeTestBuilder();
+                this.realtimeSync();
+            },
+            renderTests() {
+                const dbData = DB.getData();
+                const list = document.getElementById('ad-test-list');
+                const results = document.getElementById('ad-test-results');
+                if(!list || !results) return;
+
+                list.innerHTML = '';
+                if(dbData.tests.length === 0) list.innerHTML = `<div class="p-10 text-center text-slate-400 text-sm">배포된 테스트가 없습니다.</div>`;
+                dbData.tests.slice().reverse().forEach(t => {
+                    const trgTxt = t.target === 'all' ? '전체' : '개별';
+                    list.innerHTML += `<div class="p-4 bg-white flex justify-between items-center text-sm hover:bg-slate-50 transition border-b border-slate-50"><div class="flex-1 truncate pr-4"><span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded mr-2">${t.date}</span><span class="font-bold text-slate-800">[${trgTxt}] ${t.title} <span class="text-blue-500 text-[11px] ml-1">(${t.questions.length}문항)</span></span></div><button onclick="adminApp.deleteTest(${t.id})" class="text-red-500 hover:underline font-bold shrink-0 text-xs">삭제</button></div>`;
+                });
+
+                results.innerHTML = '';
+                if(dbData.testResults.length === 0) results.innerHTML = `<div class="p-10 text-center text-slate-400 text-sm">아직 제출된 테스트 결과가 없습니다.</div>`;
+                dbData.testResults.slice().reverse().forEach((r, idx) => {
+                    results.innerHTML += `
+                        <div class="p-4 bg-white hover:bg-slate-50 transition border-b border-slate-50">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-slate-800 text-sm">${r.userName} 학생 <span class="text-[10px] text-slate-400 font-normal ml-2">${r.date}</span></span>
+                                <span class="font-black text-emerald-600 text-lg">${r.score}점</span>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <span class="text-xs text-slate-500">맞은 개수: ${r.correct}/${r.total}</span>
+                                <button onclick="adminApp.deleteTestResult(${idx})" class="text-red-400 hover:text-red-600 text-[10px] font-bold">기록 삭제</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            },
+            deleteTest(id) {
+                if(!confirm("이 시험지를 삭제하시겠습니까? 학생의 시험지 목록에서도 사라집니다.")) return;
+                let dbData = DB.getData();
+                dbData.tests = dbData.tests.filter(t => t.id !== id);
+                dbData.testResults = dbData.testResults.filter(r => r.testId !== id);
+                DB.setData(dbData); this.realtimeSync();
+            },
+            deleteTestResult(reversedIdx) {
+                if(!confirm("이 학생의 제출 기록을 삭제하시겠습니까? 학생이 다시 시험을 볼 수 있게 됩니다.")) return;
+                let dbData = DB.getData();
+                const actualIdx = dbData.testResults.length - 1 - reversedIdx;
+                dbData.testResults.splice(actualIdx, 1);
+                DB.setData(dbData); this.realtimeSync();
+            },
+
             openStudentModal(mode, userId = null) {
                 const modal = document.getElementById('student-modal'); const form = document.getElementById('student-form'); form.reset(); document.getElementById('modal-stu-mode').value = mode;
                 if (mode === 'edit' && userId) {
@@ -1162,6 +1472,7 @@
                             if(dbData.lectureProgress && dbData.lectureProgress[originalId]) { dbData.lectureProgress[newId] = dbData.lectureProgress[originalId]; delete dbData.lectureProgress[originalId]; }
                             if(dbData.subs) dbData.subs.forEach(s => { if(s.userId === originalId) s.userId = newId; });
                             if(dbData.extensionRequests) dbData.extensionRequests.forEach(r => { if(r.userId === originalId) r.userId = newId; });
+                            if(dbData.testResults) dbData.testResults.forEach(r => { if(r.userId === originalId) { r.userId = newId; r.userName = newName; }});
                             if(app.selectedStudentId === originalId) app.selectedStudentId = newId;
                         }
                         alert("정보 수정 완료!");
@@ -1195,8 +1506,9 @@
                 }
                 renderTargets('ad-ann-target'); 
                 renderTargets('ad-hw-target');
+                renderTargets('tb-target'); // 💡 테스트 타겟 연동
 
-                this.renderExtRequests(); this.renderSuggestions(); this.renderInquiries(); this.renderCMSLists();
+                this.renderExtRequests(); this.renderSuggestions(); this.renderInquiries(); this.renderCMSLists(); this.renderTests();
                 if(app.selectedStudentId) this.selectStudent(app.selectedStudentId);
             },
 
@@ -1217,7 +1529,7 @@
 
                 const cInfo = dbData.companyInfo;
                 document.getElementById('ad-comp-name').value = cInfo.companyName; document.getElementById('ad-comp-service').value = cInfo.serviceName; document.getElementById('ad-comp-ceo').value = cInfo.ceo; document.getElementById('ad-comp-biznum').value = cInfo.bizNum; document.getElementById('ad-comp-ecomnum').value = cInfo.ecomNum; document.getElementById('ad-comp-address').value = cInfo.address; document.getElementById('ad-comp-phone').value = cInfo.phone; document.getElementById('ad-comp-email').value = cInfo.email; document.getElementById('ad-comp-bizlink').value = cInfo.bizLink === '-' ? '' : cInfo.bizLink;
-                const verInput = document.getElementById('ad-comp-version'); if(verInput) verInput.value = cInfo.version || 'V32.0';
+                const verInput = document.getElementById('ad-comp-version'); if(verInput) verInput.value = cInfo.version || 'V33.0';
 
                 const pol = dbData.policies || {};
                 document.getElementById('ad-pol-product').value = pol.product || ''; document.getElementById('ad-pol-terms').value = pol.terms || ''; document.getElementById('ad-pol-privacy').value = pol.privacy || ''; document.getElementById('ad-pol-refund').value = pol.refund || '';
@@ -1226,19 +1538,10 @@
                 this.realtimeSync(); 
             },
 
-            // 💡 [핵심 5] 관리자 5개 탭 분리 (테스트 관리 추가)
             switchTab(tabId) {
                 this.currentTab = tabId; const tabs = ['students', 'contents', 'payment', 'tests', 'settings'];
                 tabs.forEach(t => { document.getElementById(`ad-tab-${t}`).classList.add('hidden'); document.getElementById(`ad-tab-btn-${t}`).className = "py-3 md:py-3.5 text-xs md:text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition whitespace-nowrap"; });
                 document.getElementById(`ad-tab-${tabId}`).classList.remove('hidden'); document.getElementById(`ad-tab-btn-${tabId}`).className = "py-3 md:py-3.5 text-xs md:text-sm font-bold border-b-2 border-[#1a365d] text-[#1a365d] transition whitespace-nowrap";
-                
-                // 테스트 관리 탭 IFrame 렌더링
-                if(tabId === 'tests') {
-                    const testContainer = document.getElementById('ad-test-iframe-container');
-                    if(testContainer.innerHTML === '') {
-                        testContainer.innerHTML = `<iframe src="https://naesinfit-tests.vercel.app/?role=admin" class="w-full h-full border-0" allow="autoplay; fullscreen"></iframe>`;
-                    }
-                }
             },
 
             renderExtRequests() {
@@ -1293,7 +1596,7 @@
                 e.preventDefault(); let dbData = DB.getData();
                 dbData.companyInfo = { 
                     companyName: document.getElementById('ad-comp-name').value.trim() || '-', serviceName: document.getElementById('ad-comp-service').value.trim() || '-', ceo: document.getElementById('ad-comp-ceo').value.trim() || '-', bizNum: document.getElementById('ad-comp-biznum').value.trim() || '-', ecomNum: document.getElementById('ad-comp-ecomnum').value.trim() || '-', address: document.getElementById('ad-comp-address').value.trim() || '-', phone: document.getElementById('ad-comp-phone').value.trim() || '-', email: document.getElementById('ad-comp-email').value.trim() || '-', bizLink: document.getElementById('ad-comp-bizlink').value.trim() || '-',
-                    version: document.getElementById('ad-comp-version') ? document.getElementById('ad-comp-version').value.trim() : 'V32.0'
+                    version: document.getElementById('ad-comp-version') ? document.getElementById('ad-comp-version').value.trim() : 'V33.0'
                 };
                 DB.setData(dbData); alert("회사 정보 업데이트 완료"); app.renderFooter(); this.realtimeSync();
             },
@@ -1352,7 +1655,6 @@
             importData() { const fileInput = document.getElementById('import-file'); if (!fileInput.files.length) return alert("파일 선택 요망"); const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if(importedData && importedData.users) { DB.setData(importedData); alert("복구 완료!"); location.reload(); } else alert("올바르지 않은 파일"); } catch(err) { alert("오류 발생"); } }; reader.readAsText(fileInput.files[0]); }
         };
 
-        // 앱 구동
         app.init();
     </script>
 </body>
